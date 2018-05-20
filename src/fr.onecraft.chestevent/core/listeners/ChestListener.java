@@ -47,7 +47,6 @@ public class ChestListener implements Listener {
             return;
         }
 
-
         Chest chest = Chest.fromId(plugin, id);
         if (chest == null) {
             player.getInventory().setItemInHand(new ItemStack(Material.AIR));
