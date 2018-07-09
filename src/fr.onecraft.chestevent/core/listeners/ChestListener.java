@@ -3,6 +3,7 @@ package fr.onecraft.chestevent.core.listeners;
 import fr.onecraft.chestevent.ChestEvent;
 import fr.onecraft.chestevent.core.objects.Chest;
 import fr.onecraft.chestevent.core.objects.Menu;
+import fr.onecraft.chestevent.core.objects.Model;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
@@ -37,6 +38,10 @@ public class ChestListener implements Listener {
         if (item == null || !item.getType().equals(Material.CHEST))
             return;
         ItemMeta meta = item.getItemMeta();
+
+        /*
+         * Vérification du nom de l'item coffre
+         */
         if (meta.getDisplayName() == null || !meta.getDisplayName().startsWith("§6§lCoffre d'événement §f§ln°"))
             return;
 
@@ -74,7 +79,7 @@ public class ChestListener implements Listener {
 
         Menu menu = (Menu) inventory.getHolder();
         ItemStack clickedItem = event.getCurrentItem();
-        if (clickedItem != null && (clickedItem.getType().equals(Material.REDSTONE) || clickedItem.getType().equals(Material.DOUBLE_PLANT))) {
+        if (clickedItem != null && (clickedItem.getType().equals(Menu.PAGE_BUTTON) || clickedItem.getType().equals(Menu.SEPARATION_BUTTON))) {
             if (clickedItem.equals(inventory.getItem(51))) {
                 if (menu.getCurrentPage() < Math.ceil((double) menu.getSize() / 45)) {
                     menu.setCurrentPage(menu.getCurrentPage() + 1);
@@ -117,16 +122,18 @@ public class ChestListener implements Listener {
                 player.getInventory().addItem(itemStack);
                 inventory.setItem(event.getRawSlot(), new ItemStack(Material.AIR));
                 player.updateInventory();
-            } else
+            } else {
                 player.sendMessage(ChestEvent.ERROR + "Votre inventaire est plein !");
+            }
         } else {
             if (player.getInventory().firstEmpty() != -1) {
                 menu.getItems().remove(itemStack);
                 player.getInventory().addItem(itemStack);
                 inventory.setItem(event.getRawSlot(), new ItemStack(Material.AIR));
                 player.updateInventory();
-            } else
+            } else {
                 player.sendMessage(ChestEvent.ERROR + "Votre inventaire est plein !");
+            }
         }
 
         if (menu.getItems().isEmpty()) {

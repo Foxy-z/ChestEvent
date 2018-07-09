@@ -15,9 +15,7 @@ import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 
-import java.io.File;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -48,11 +46,8 @@ public class CmdChestEvent implements CommandExecutor {
 
         String action = args[0];
         String event = args[1];
-        File file = new File(plugin.getDataFolder() + "/Models", event + ".yml");
-        if (!file.exists()) {
-            sender.sendMessage(ChestEvent.ERROR + "Cet événement n'existe pas.");
-            return true;
-        }
+
+        if (!Model.eventExists(event)) sender.sendMessage(ChestEvent.ERROR + "Cet événement n'existe pas.");
 
         if (action.equalsIgnoreCase("viewcontent"))
             viewContent(sender, event);
@@ -77,12 +72,12 @@ public class CmdChestEvent implements CommandExecutor {
 
     private void showEventList(CommandSender sender) {
         Bukkit.getScheduler().runTaskAsynchronously(plugin, () -> {
-            File[] folder = new File(plugin.getDataFolder() + "/Models").listFiles();
-            if (folder == null) {
+            if (Model.getEventList().size() == 0) {
                 sender.sendMessage(ChestEvent.PREFIX + "Il n'y a aucun événement.");
                 return;
             }
-            Set<String> list = Arrays.stream(folder).map(file -> file.getName().replace(".yml", "")).collect(Collectors.toSet());
+
+            Set<String> list = Model.getEventList().stream().map(file -> file.getName().replace(".yml", "")).collect(Collectors.toSet());
             sender.sendMessage(ChestEvent.PREFIX + "Liste des événements");
             list.stream().map(string -> " §7– §b" + string).forEach(sender::sendMessage);
         });
@@ -104,7 +99,7 @@ public class CmdChestEvent implements CommandExecutor {
         String number = arg.substring(1);
         try {
             int page = Integer.parseInt(number);
-            Pager pager = plugin.getPager(player);
+            Pager pager = plugin.getPagers().get(player);
             if (pager.getPages() < page) {
                 sender.sendMessage(ChestEvent.ERROR + "Cette page n'existe pas.");
                 return;
@@ -183,7 +178,7 @@ public class CmdChestEvent implements CommandExecutor {
 
             Pager pager = new Pager(event, items);
             if (sender instanceof Player)
-                plugin.setPager((Player) sender, pager);
+                plugin.getPagers().put(((Player) sender).getUniqueId(), pager);
 
             TextComponent message = new TextComponent(ChestEvent.PREFIX + "Contenu de l'événement §a" + event);
             message.setColor(ChatColor.GRAY);

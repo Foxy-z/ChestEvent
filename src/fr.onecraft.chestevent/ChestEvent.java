@@ -9,7 +9,6 @@ import org.bukkit.Bukkit;
 import org.bukkit.command.PluginCommand;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.configuration.file.YamlConfiguration;
-import org.bukkit.entity.Player;
 import org.bukkit.plugin.PluginManager;
 import org.bukkit.plugin.java.JavaPlugin;
 
@@ -37,7 +36,7 @@ public class ChestEvent extends JavaPlugin {
 
         PluginCommand command = this.getCommand("chestevent");
         command.setExecutor(new CmdChestEvent(this));
-        command.setTabCompleter(new CompleterChestEvent(this));
+        command.setTabCompleter(new CompleterChestEvent());
 
         generateFiles();
         removeOldFiles();
@@ -75,15 +74,7 @@ public class ChestEvent extends JavaPlugin {
         });
     }
 
-    public Pager getPager(Player player) {
-        return PAGER_CACHE.get(player.getUniqueId());
-    }
-
-    public void setPager(Player player, Pager pager) {
-        PAGER_CACHE.put(player.getUniqueId(), pager);
-    }
-
-    public void removePager(Player player) {
-        PAGER_CACHE.remove(player.getUniqueId());
+    public Map<UUID, Pager> getPagers() {
+        return PAGER_CACHE;
     }
 }

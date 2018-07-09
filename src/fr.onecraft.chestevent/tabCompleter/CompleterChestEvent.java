@@ -1,6 +1,7 @@
 package fr.onecraft.chestevent.tabCompleter;
 
 import fr.onecraft.chestevent.ChestEvent;
+import fr.onecraft.chestevent.core.objects.Model;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.bukkit.command.TabCompleter;
@@ -14,11 +15,7 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 public class CompleterChestEvent implements TabCompleter {
-    private ChestEvent plugin;
-
-    public CompleterChestEvent(ChestEvent plugin) {
-        this.plugin = plugin;
-    }
+    public CompleterChestEvent() {}
 
     @Override
     public List<String> onTabComplete(CommandSender sender, Command command, String s, String[] args) {
@@ -54,9 +51,8 @@ public class CompleterChestEvent implements TabCompleter {
         if (args.length == 2) {
             if (player.hasPermission("chestevent.give") || player.hasPermission("chestevent.info")
                     || player.hasPermission("chestevent.viewcontent")) {
-                File[] files = new File(plugin.getDataFolder() + "/Models").listFiles();
-                if (files == null) return null;
-                list = Arrays.stream(files).map(file -> file.getName().replace(".yml", "")).collect(Collectors.toSet());
+                if (Model.getEventList().size() == 0) return null;
+                list = Model.getEventList().stream().map(file -> file.getName().replace(".yml", "")).collect(Collectors.toSet());
             }
             result = list.stream().filter(string -> string.toLowerCase().startsWith(args[1].toLowerCase())).collect(Collectors.toList());
             return result;

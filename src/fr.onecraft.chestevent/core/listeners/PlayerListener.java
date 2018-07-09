@@ -1,9 +1,9 @@
 package fr.onecraft.chestevent.core.listeners;
 
 import fr.onecraft.chestevent.ChestEvent;
+import org.bukkit.Bukkit;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
-import org.bukkit.event.player.PlayerKickEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
 
 public class PlayerListener implements Listener {
@@ -15,11 +15,7 @@ public class PlayerListener implements Listener {
 
     @EventHandler
     public void onPlayerLeave(PlayerQuitEvent event) {
-        plugin.removePager(event.getPlayer());
-    }
-
-    @EventHandler
-    public void onPlayerKicked(PlayerKickEvent event) {
-        plugin.removePager(event.getPlayer());
+        Bukkit.broadcastMessage("test");
+        plugin.getPagers().remove(event.getPlayer().getUniqueId());
     }
 }

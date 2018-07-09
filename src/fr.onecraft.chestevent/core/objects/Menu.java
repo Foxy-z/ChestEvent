@@ -1,6 +1,7 @@
 package fr.onecraft.chestevent.core.objects;
 
 import fr.onecraft.chestevent.ChestEvent;
+import fr.onecraft.chestevent.core.listeners.ChestListener;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.configuration.InvalidConfigurationException;
@@ -23,6 +24,9 @@ public class Menu implements InventoryHolder {
     private int size;
     private int currentPage;
     private List<ItemStack> items;
+
+    public static Material PAGE_BUTTON = Material.REDSTONE;
+    public static Material SEPARATION_BUTTON = Material.REDSTONE;
 
     Menu(ChestEvent plugin, int id, List<ItemStack> items) {
         this.plugin = plugin;
@@ -120,7 +124,7 @@ public class Menu implements InventoryHolder {
      */
 
     private static ItemStack getNextButton() {
-        ItemStack itemStack = new ItemStack(Material.REDSTONE);
+        ItemStack itemStack = new ItemStack(PAGE_BUTTON);
         ItemMeta meta = itemStack.getItemMeta();
         meta.setDisplayName("§6§l >>> Page suivante >>> ");
         itemStack.setItemMeta(meta);
@@ -128,7 +132,7 @@ public class Menu implements InventoryHolder {
     }
 
     private static ItemStack getPreviewButton() {
-        ItemStack itemStack = new ItemStack(Material.REDSTONE);
+        ItemStack itemStack = new ItemStack(PAGE_BUTTON);
         ItemMeta meta = itemStack.getItemMeta();
         meta.setDisplayName("§6§l <<< Page précédente <<< ");
         itemStack.setItemMeta(meta);
@@ -136,7 +140,7 @@ public class Menu implements InventoryHolder {
     }
 
     private static ItemStack getPageButton(int page) {
-        ItemStack itemStack = new ItemStack(Material.DOUBLE_PLANT, 1);
+        ItemStack itemStack = new ItemStack(SEPARATION_BUTTON, 1);
         ItemMeta meta = itemStack.getItemMeta();
         meta.setDisplayName("§6§l <<< Page " + page + " >>> ");
         itemStack.setItemMeta(meta);

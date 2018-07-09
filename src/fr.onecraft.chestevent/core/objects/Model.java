@@ -14,13 +14,13 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.nio.charset.Charset;
-import java.nio.file.Files;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 
 public class Model {
-    private ChestEvent plugin;
+    private static ChestEvent plugin;
     private String eventName;
     private String code;
     private String description;
@@ -108,5 +108,15 @@ public class Model {
             }
         });
         return items;
+    }
+
+    public static boolean eventExists(String eventName) {
+        File file = new File(plugin.getDataFolder() + "/Models", eventName + ".yml");
+        return file.exists();
+    }
+
+    public static List<File> getEventList() {
+        if (new File(plugin.getDataFolder() + "/Models").listFiles() == null) return new ArrayList<>();
+        return Arrays.asList(new File(plugin.getDataFolder() + "/Models").listFiles());
     }
 }
