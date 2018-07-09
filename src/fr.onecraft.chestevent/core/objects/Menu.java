@@ -1,7 +1,6 @@
 package fr.onecraft.chestevent.core.objects;
 
 import fr.onecraft.chestevent.ChestEvent;
-import fr.onecraft.chestevent.core.listeners.ChestListener;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.configuration.InvalidConfigurationException;
@@ -93,7 +92,9 @@ public class Menu implements InventoryHolder {
         for (ItemStack itemStack : getItems()) {
             ItemMeta meta = itemStack.getItemMeta();
             String metadata = itemStack.getData().getData() > 0 ? ":" + itemStack.getData().getData() : "";
-            List<String> lore = meta.getLore().stream().map(string -> string.replace("§", "&").substring(2)).collect(Collectors.toList());
+            List<String> lore = new ArrayList<>();
+            if (meta.getLore().size() > 0)
+                lore = meta.getLore().stream().map(string -> string.replace("§", "&").substring(2)).collect(Collectors.toList());
             List<String> enchants = new ArrayList<>();
             int count = 0;
             for (Enchantment enchantment : meta.getEnchants().keySet()) {
