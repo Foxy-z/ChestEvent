@@ -39,10 +39,8 @@ public class CmdChestEvent implements CommandExecutor {
             return true;
         } else if (args[0].startsWith(":")) {
             showPage(sender, args[0]);
-            return true;
         } else if (args[0].equalsIgnoreCase("list")) {
             showEventList(sender);
-            return true;
         }
 
         if (args.length < 2) {
@@ -53,13 +51,15 @@ public class CmdChestEvent implements CommandExecutor {
 
         if (!Model.eventExists(event, plugin))
             sender.sendMessage(ChestEvent.ERROR + "Cet événement n'existe pas.");
-        
+
         if (action.equalsIgnoreCase("viewcontent"))
             viewContent(sender, event);
         else if (action.equalsIgnoreCase("info"))
             info(sender, event);
         else if (action.equalsIgnoreCase("give"))
             give(sender, event, args);
+        else
+            showHelp(sender);
         return true;
     }
 
