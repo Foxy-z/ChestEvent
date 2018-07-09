@@ -36,7 +36,7 @@ public class ChestEvent extends JavaPlugin {
 
         PluginCommand command = this.getCommand("chestevent");
         command.setExecutor(new CmdChestEvent(this));
-        command.setTabCompleter(new CompleterChestEvent());
+        command.setTabCompleter(new CompleterChestEvent(this));
 
         generateFiles();
         removeOldFiles();

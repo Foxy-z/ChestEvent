@@ -15,7 +15,11 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 public class CompleterChestEvent implements TabCompleter {
-    public CompleterChestEvent() {}
+    private ChestEvent plugin;
+
+    public CompleterChestEvent(ChestEvent plugin) {
+        this.plugin = plugin;
+    }
 
     @Override
     public List<String> onTabComplete(CommandSender sender, Command command, String s, String[] args) {
@@ -51,8 +55,8 @@ public class CompleterChestEvent implements TabCompleter {
         if (args.length == 2) {
             if (player.hasPermission("chestevent.give") || player.hasPermission("chestevent.info")
                     || player.hasPermission("chestevent.viewcontent")) {
-                if (Model.getEventList().size() == 0) return null;
-                list = Model.getEventList().stream().map(file -> file.getName().replace(".yml", "")).collect(Collectors.toSet());
+                if (Model.getEventList(plugin).size() == 0) return null;
+                list = Model.getEventList(plugin).stream().map(file -> file.getName().replace(".yml", "")).collect(Collectors.toSet());
             }
             result = list.stream().filter(string -> string.toLowerCase().startsWith(args[1].toLowerCase())).collect(Collectors.toList());
             return result;

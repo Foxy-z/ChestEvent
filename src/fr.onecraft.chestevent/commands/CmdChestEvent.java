@@ -47,7 +47,7 @@ public class CmdChestEvent implements CommandExecutor {
         String action = args[0];
         String event = args[1];
 
-        if (!Model.eventExists(event)) sender.sendMessage(ChestEvent.ERROR + "Cet événement n'existe pas.");
+        if (!Model.eventExists(event, plugin)) sender.sendMessage(ChestEvent.ERROR + "Cet événement n'existe pas.");
 
         if (action.equalsIgnoreCase("viewcontent"))
             viewContent(sender, event);
@@ -72,12 +72,12 @@ public class CmdChestEvent implements CommandExecutor {
 
     private void showEventList(CommandSender sender) {
         Bukkit.getScheduler().runTaskAsynchronously(plugin, () -> {
-            if (Model.getEventList().size() == 0) {
+            if (Model.getEventList(plugin).size() == 0) {
                 sender.sendMessage(ChestEvent.PREFIX + "Il n'y a aucun événement.");
                 return;
             }
 
-            Set<String> list = Model.getEventList().stream().map(file -> file.getName().replace(".yml", "")).collect(Collectors.toSet());
+            Set<String> list = Model.getEventList(plugin).stream().map(file -> file.getName().replace(".yml", "")).collect(Collectors.toSet());
             sender.sendMessage(ChestEvent.PREFIX + "Liste des événements");
             list.stream().map(string -> " §7– §b" + string).forEach(sender::sendMessage);
         });
@@ -160,16 +160,22 @@ public class CmdChestEvent implements CommandExecutor {
                 ItemMeta meta = itemStack.getItemMeta();
                 int count = 0;
                 TextComponent component = new TextComponent("§7" + num + " §8- §b" + itemStack.getType() + " x" + itemStack.getAmount() + "§8, §7" + itemStack.getItemMeta().getDisplayName());
-                String lore = itemStack.getItemMeta().getLore().stream().map(desc -> desc + "\n").collect(Collectors.joining());
+                String lore = "";
+                if (itemStack.getItemMeta().getLore() != null)
+                    lore = itemStack.getItemMeta().getLore().stream().map(desc -> "\n" + desc).collect(Collectors.joining());
                 StringBuilder enchants = new StringBuilder();
-                for (Enchantment enchantment : meta.getEnchants().keySet()) {
-                    enchants.append("\n").append(" §8– §b").append(enchantment.getName()).append(" niv.").append(meta.getEnchants().values().toArray()[count]);
-                    count++;
+                if (itemStack.getItemMeta().getEnchants().size() > 0) {
+                    for (Enchantment enchantment : meta.getEnchants().keySet()) {
+                        enchants.append("\n").append(" §8– §b").append(enchantment.getName()).append(" niv.").append(meta.getEnchants().values().toArray()[count]);
+                        count++;
+                    }
                 }
+
                 component.setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, new ComponentBuilder(
-                        "§7§lDescription\n"
+                        (lore.length() > 0 ? "§7§lDescription" : "")
                                 + lore
-                                + "\n§7§lEnchantements"
+                                + (lore.length() > 0 ? "\n" : "")
+                                + (meta.getEnchants().size() > 0 ? "\n§7§lEnchantements" : "")
                                 + enchants.toString()
                 ).create()));
                 items.add(component);

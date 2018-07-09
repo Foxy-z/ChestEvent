@@ -20,7 +20,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 public class Model {
-    private static ChestEvent plugin;
+    private ChestEvent plugin;
     private String eventName;
     private String code;
     private String description;
@@ -110,13 +110,14 @@ public class Model {
         return items;
     }
 
-    public static boolean eventExists(String eventName) {
+    public static boolean eventExists(String eventName, ChestEvent plugin) {
         File file = new File(plugin.getDataFolder() + "/Models", eventName + ".yml");
         return file.exists();
     }
 
-    public static List<File> getEventList() {
-        if (new File(plugin.getDataFolder() + "/Models").listFiles() == null) return new ArrayList<>();
-        return Arrays.asList(new File(plugin.getDataFolder() + "/Models").listFiles());
+    public static List<File> getEventList(ChestEvent plugin) {
+        File file = new File(plugin.getDataFolder() + "/Models");
+        if (!file.exists()) return new ArrayList<>();
+        return Arrays.asList(file.listFiles());
     }
 }
