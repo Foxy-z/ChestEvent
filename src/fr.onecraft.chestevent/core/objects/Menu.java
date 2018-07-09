@@ -93,7 +93,7 @@ public class Menu implements InventoryHolder {
             ItemMeta meta = itemStack.getItemMeta();
             String metadata = itemStack.getData().getData() > 0 ? ":" + itemStack.getData().getData() : "";
             List<String> lore = new ArrayList<>();
-            if (meta.getLore().size() > 0)
+            if (meta.getLore() != null)
                 lore = meta.getLore().stream().map(string -> string.replace("§", "&").substring(2)).collect(Collectors.toList());
             List<String> enchants = new ArrayList<>();
             int count = 0;
