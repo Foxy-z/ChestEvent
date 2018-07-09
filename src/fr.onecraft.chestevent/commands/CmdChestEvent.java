@@ -174,7 +174,7 @@ public class CmdChestEvent implements CommandExecutor {
                 component.setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, new ComponentBuilder(
                         (lore.length() > 0 ? "§7§lDescription" : "")
                                 + lore
-                                + ((lore.length() > 0 && meta.getEnchants().size() > 0) ? "\n" : "")
+                                + ((lore.length() > 0 && meta.getEnchants().size() > 0) ? "\n\n" : "")
                                 + (meta.getEnchants().size() > 0 ? "§7§lEnchantements" : "")
                                 + enchants.toString()
                 ).create()));
