@@ -28,7 +28,8 @@ public class CmdChestEvent implements CommandExecutor {
 
     @Override
     public boolean onCommand(CommandSender sender, Command command, String s, String[] args) {
-        if (!sender.hasPermission("chestevent.give") && !sender.hasPermission("chestevent.viewcontent") && !sender.hasPermission("chestevent.info")) {
+        if (!sender.hasPermission("chestevent.give") && !sender.hasPermission("chestevent.viewcontent")
+                && !sender.hasPermission("chestevent.info") && !sender.hasPermission("chestevent.list")) {
             sender.sendMessage(ChestEvent.ERROR + "Tu n'as pas la permission.");
             return true;
         } else if (args.length == 1 && args[0].startsWith(":")) {
