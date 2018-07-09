@@ -28,14 +28,19 @@ public class CmdChestEvent implements CommandExecutor {
 
     @Override
     public boolean onCommand(CommandSender sender, Command command, String s, String[] args) {
-        if (!sender.hasPermission("chestevent.give") && !sender.hasPermission("chestevent.viewcontent")
-                && !sender.hasPermission("chestevent.info") && !sender.hasPermission("chestevent.list")) {
+        if (args.length < 1) {
+            showHelp(sender);
+            return true;
+        }
+
+        String action = args[0].toLowerCase();
+        if (!sender.hasPermission("chestevent." + action)) {
             sender.sendMessage(ChestEvent.ERROR + "Tu n'as pas la permission.");
             return true;
-        } else if (args.length == 1 && args[0].startsWith(":")) {
+        } else if (args[0].startsWith(":")) {
             showPage(sender, args[0]);
             return true;
-        } else if (args.length == 1 && args[0].equalsIgnoreCase("list")) {
+        } else if (args[0].equalsIgnoreCase("list")) {
             showEventList(sender);
             return true;
         }
@@ -44,12 +49,11 @@ public class CmdChestEvent implements CommandExecutor {
             showHelp(sender);
             return true;
         }
-
-        String action = args[0];
         String event = args[1];
 
-        if (!Model.eventExists(event, plugin)) sender.sendMessage(ChestEvent.ERROR + "Cet événement n'existe pas.");
-
+        if (!Model.eventExists(event, plugin))
+            sender.sendMessage(ChestEvent.ERROR + "Cet événement n'existe pas.");
+        
         if (action.equalsIgnoreCase("viewcontent"))
             viewContent(sender, event);
         else if (action.equalsIgnoreCase("info"))
