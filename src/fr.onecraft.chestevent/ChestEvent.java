@@ -3,6 +3,7 @@ package fr.onecraft.chestevent;
 import fr.onecraft.chestevent.commands.CmdChestEvent;
 import fr.onecraft.chestevent.core.listeners.ChestListener;
 import fr.onecraft.chestevent.core.listeners.PlayerListener;
+import fr.onecraft.chestevent.core.objects.Model;
 import fr.onecraft.chestevent.core.objects.Pager;
 import fr.onecraft.chestevent.tabCompleter.CompleterChestEvent;
 import org.bukkit.Bukkit;
@@ -20,26 +21,24 @@ import java.util.Map;
 import java.util.UUID;
 
 public class ChestEvent extends JavaPlugin {
-    public static String PREFIX;
-    public static String ERROR;
+    public static String PREFIX = "§9ChestEvent > §7";
+    public static String ERROR = "§cErreur > §7";
 
     private Map<UUID, Pager> PAGER_CACHE = new HashMap<>();
 
     @Override
     public void onEnable() {
-        PREFIX = "§9ChestEvent > §7";
-        ERROR = "§cErreur > §7";
-
         PluginManager pluginManager = Bukkit.getPluginManager();
         pluginManager.registerEvents(new ChestListener(this), this);
         pluginManager.registerEvents(new PlayerListener(this), this);
 
         PluginCommand command = this.getCommand("chestevent");
         command.setExecutor(new CmdChestEvent(this));
-        command.setTabCompleter(new CompleterChestEvent(this));
+        command.setTabCompleter(new CompleterChestEvent());
 
         generateFiles();
         removeOldFiles();
+        Model.loadEventList(this);
         getLogger().info(this.getDescription().getName() + " has been enabled.");
     }
 
@@ -54,7 +53,8 @@ public class ChestEvent extends JavaPlugin {
             configuration.set("id", 0);
             try {
                 configuration.save(new File(this.getDataFolder(), "data.yml"));
-            } catch (IOException ignored) {
+            } catch (IOException e) {
+                e.printStackTrace();
             }
         }
 
@@ -65,13 +65,11 @@ public class ChestEvent extends JavaPlugin {
     private void removeOldFiles() {
         File[] files = new File(this.getDataFolder() + "/Chests").listFiles();
         if (files == null) return;
-        Arrays.stream(files).forEach(file -> {
+        Arrays.stream(files).filter(file -> {
             ConfigurationSection configuration = YamlConfiguration.loadConfiguration(file);
             long expireDate = configuration.getLong("expire-date");
-            if (System.currentTimeMillis() > expireDate) {
-                file.delete();
-            }
-        });
+            return System.currentTimeMillis() > expireDate;
+        }).forEach(File::delete);
     }
 
     public Map<UUID, Pager> getPagers() {

@@ -1,6 +1,7 @@
 package fr.onecraft.chestevent.core.objects;
 
 import fr.onecraft.chestevent.ChestEvent;
+import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.configuration.InvalidConfigurationException;
@@ -25,6 +26,7 @@ public class Model {
     private String code;
     private String description;
     private List<ItemStack> itemList;
+    private static List<Model> MODEL_LIST = new ArrayList<>();
 
     public static Model fromName(ChestEvent plugin, String name) {
         try {
@@ -48,6 +50,10 @@ public class Model {
 
     private String getCode() {
         return code;
+    }
+
+    public String getName() {
+        return eventName;
     }
 
     public String getPermission() {
@@ -115,9 +121,15 @@ public class Model {
         return file.exists();
     }
 
-    public static List<File> getEventList(ChestEvent plugin) {
-        File file = new File(plugin.getDataFolder() + "/Models");
-        if (!file.exists()) return new ArrayList<>();
-        return Arrays.asList(file.listFiles());
+    public static void loadEventList(ChestEvent plugin) {
+        Bukkit.getScheduler().runTaskAsynchronously(plugin, () -> {
+            File path = new File(plugin.getDataFolder() + "/Models");
+            if (!path.exists()) return;
+            Arrays.stream(path.listFiles()).forEach(file -> MODEL_LIST.add(fromName(plugin, file.getName().replace(".yml", ""))));
+        });
+    }
+
+    public static List<Model> getEventList() {
+        return MODEL_LIST;
     }
 }
