@@ -36,11 +36,13 @@ public class CmdChestEvent implements CommandExecutor {
         String action = args[0].toLowerCase();
         if (!sender.hasPermission("chestevent." + action)) {
             sender.sendMessage(ChestEvent.ERROR + "Tu n'as pas la permission.");
-        } else if (args[0].startsWith(":")) {
-            showPage(sender, args[0]);
-        } else if (args[0].equalsIgnoreCase("list")) {
+        } else if (action.startsWith(":") && (sender instanceof Player)) {
+            showPage(sender, action);
+        } else if (action.equalsIgnoreCase("list")) {
             showEventList(sender);
-        } else if (args.length < 2) {
+        } else if (action.equalsIgnoreCase("reload")) {
+            reloadCache(sender);
+        }  else if (args.length < 2) {
             showHelp(sender);
         } else {
             String event = args[1];
@@ -84,12 +86,12 @@ public class CmdChestEvent implements CommandExecutor {
         });
     }
 
-    private void showPage(CommandSender sender, String arg) {
-        if (!sender.hasPermission("chestevent.viewcontent")) {
-            sender.sendMessage(ChestEvent.ERROR + "Tu n'as pas la permission.");
-            return;
-        }
+    private void reloadCache(CommandSender sender) {
+        Model.loadEventList(plugin);
+        sender.sendMessage(ChestEvent.PREFIX + "Les modèles ont été chargés.");
+    }
 
+    private void showPage(CommandSender sender, String arg) {
         String number = arg.substring(1);
         try {
             int page = Integer.parseInt(number);
@@ -132,15 +134,9 @@ public class CmdChestEvent implements CommandExecutor {
             message.addExtra(nextPage);
 
             sender.sendMessage("\n");
-            if (sender instanceof Player)
-                ((Player) sender).spigot().sendMessage(message);
-            else
-                sender.sendMessage(message.toString());
+            ((Player) sender).spigot().sendMessage(message);
 
-            if (sender instanceof Player)
-                pager.getPage(pager.getCurrentPage()).forEach(msg -> ((Player) sender).spigot().sendMessage(msg));
-            else
-                pager.getPage(pager.getCurrentPage()).forEach(BaseComponent::toLegacyText);
+            pager.getPage(pager.getCurrentPage()).forEach(msg -> ((Player) sender).spigot().sendMessage(msg));
         } catch (NumberFormatException e) {
             sender.sendMessage(ChestEvent.ERROR + "Cette page n'existe pas.");
         }
@@ -148,11 +144,6 @@ public class CmdChestEvent implements CommandExecutor {
 
     private void viewContent(CommandSender sender, String event) {
         Bukkit.getScheduler().runTaskAsynchronously(plugin, () -> {
-            if (!sender.hasPermission("chestevent.viewcontent")) {
-                sender.sendMessage(ChestEvent.ERROR + "Tu n'as pas la permission.");
-                return;
-            }
-
             ArrayList<ItemStack> rawItems = new ArrayList<>(Model.fromName(plugin, event).getContent());
             ArrayList<TextComponent> items = new ArrayList<>();
             int num = 1;
@@ -235,13 +226,7 @@ public class CmdChestEvent implements CommandExecutor {
 
     private void info(CommandSender sender, String event) {
         Bukkit.getScheduler().runTaskAsynchronously(plugin, () -> {
-            if (!sender.hasPermission("chestevent.info")) {
-                sender.sendMessage(ChestEvent.ERROR + "Tu n'as pas la permission.");
-                return;
-            }
-
             Model model = Model.fromName(plugin, event);
-
             sender.sendMessage(ChestEvent.PREFIX + "Informations sur l'événement §a" + event + "\n"
                     + " §8- §7Description: §b" + model.getDescription() + "\n"
                     + " §8- §7Permission: §b" + model.getPermission() + "\n"
@@ -250,11 +235,6 @@ public class CmdChestEvent implements CommandExecutor {
     }
 
     private void give(CommandSender sender, String event, String[] args) {
-        if (!sender.hasPermission("chestevent.give")) {
-            sender.sendMessage(ChestEvent.ERROR + "Tu n'as pas la permission.");
-            return;
-        }
-
         Chest chest = Model.fromName(plugin, event).createChest();
 
         if (args.length > 2) {

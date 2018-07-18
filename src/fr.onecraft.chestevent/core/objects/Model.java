@@ -34,15 +34,15 @@ public class Model {
             File file = new File(plugin.getDataFolder() + "/Models", name + ".yml");
             FileInputStream fileinputstream = new FileInputStream(file);
             configuration.load(new InputStreamReader(fileinputstream, Charset.forName("UTF-8")));
-            return new Model(plugin, configuration);
+            return new Model(plugin, configuration, name);
         } catch (InvalidConfigurationException | IOException e) {
             return null;
         }
     }
 
-    private Model(ChestEvent plugin, ConfigurationSection config) {
+    private Model(ChestEvent plugin, ConfigurationSection config, String  eventName) {
         this.plugin = plugin;
-        this.eventName = config.getString("display-name");
+        this.eventName = eventName;
         this.code = config.getString("code-name");
         this.description = config.getString("description");
         this.itemList = loadContent(config);
@@ -125,6 +125,7 @@ public class Model {
         Bukkit.getScheduler().runTaskAsynchronously(plugin, () -> {
             File path = new File(plugin.getDataFolder() + "/Models");
             if (!path.exists()) return;
+            MODEL_LIST.clear();
             Arrays.stream(path.listFiles()).forEach(file -> MODEL_LIST.add(fromName(plugin, file.getName().replace(".yml", ""))));
         });
     }
