@@ -39,9 +39,12 @@ public class Menu implements InventoryHolder {
         Inventory result = Bukkit.createInventory(this, 54, "§6§lCoffre d'événement §f§ln°" + id);
         int count = 0;
         for (ItemStack item : items) {
+            // if there is more than one page
             if (size > 54) {
-                if (count >= (page - 1) * 45 && count < page * 45)
+                // if the item is on the requested page
+                if (count >= (page - 1) * 45 && count < page * 45) {
                     result.setItem(count, item);
+                }
                 result.setItem(51, getNextButton());
                 result.setItem(49, getPageButton(page));
                 result.setItem(47, getPreviewButton());

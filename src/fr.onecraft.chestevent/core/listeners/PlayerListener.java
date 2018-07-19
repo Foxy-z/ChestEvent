@@ -15,7 +15,6 @@ public class PlayerListener implements Listener {
 
     @EventHandler
     public void onPlayerLeave(PlayerQuitEvent event) {
-        Bukkit.broadcastMessage("test");
         plugin.getPagers().remove(event.getPlayer().getUniqueId());
     }
 }

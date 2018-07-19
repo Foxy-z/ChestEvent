@@ -70,6 +70,7 @@ public class ChestEvent extends JavaPlugin {
                 return System.currentTimeMillis() > expireDate;
             }
             return false;
+            // delete file if has expired
         }).forEach(File::delete);
     }
 
