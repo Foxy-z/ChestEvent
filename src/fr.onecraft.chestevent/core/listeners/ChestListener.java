@@ -29,21 +29,23 @@ public class ChestListener implements Listener {
      */
     @EventHandler
     public void on(PlayerInteractEvent event) {
-        Player player = event.getPlayer();
-        Action action = event.getAction();
         // if it is a right click
-        if (!action.equals(Action.RIGHT_CLICK_BLOCK) && !action.equals(Action.RIGHT_CLICK_AIR))
+        Action action = event.getAction();
+        if (!action.equals(Action.RIGHT_CLICK_BLOCK) && !action.equals(Action.RIGHT_CLICK_AIR)) {
             return;
-
+        }
+        Player player = event.getPlayer();
         ItemStack item = player.getItemInHand();
         // if clicked item is a chest
-        if (item == null || !item.getType().equals(Material.CHEST))
+        if (item == null || !item.getType().equals(Material.CHEST)) {
             return;
+        }
         ItemMeta meta = item.getItemMeta();
 
         // check if the chest's name is right
-        if (meta.getDisplayName() == null || !meta.getDisplayName().startsWith("§6§lCoffre d'événement §f§ln°"))
+        if (meta.getDisplayName() == null || !meta.getDisplayName().startsWith("§6§lCoffre d'événement §f§ln°")) {
             return;
+        }
 
         int id;
         try {
@@ -77,16 +79,22 @@ public class ChestListener implements Listener {
     @EventHandler
     public void on(InventoryClickEvent event) {
         // if this is not an inventory from the plugin
-        if (!(event.getInventory().getHolder() instanceof Menu)) return;
+        if (!(event.getInventory().getHolder() instanceof Menu)) {
+            return;
+        }
         Player player = (Player) event.getWhoClicked();
         Inventory inventory = event.getClickedInventory();
-        if (inventory == null) return;
+        if (inventory == null) {
+            return;
+        }
 
         Menu menu = (Menu) inventory.getHolder();
         event.setCancelled(true);
         ItemStack clickedItem = event.getCurrentItem();
         // check if clicked item is null or is air
-        if (clickedItem == null || clickedItem.getType().equals(Material.AIR)) return;
+        if (clickedItem == null || clickedItem.getType().equals(Material.AIR)) {
+            return;
+        }
 
         // if clicked item is a button
         if (clickedItem.getType().equals(Menu.PAGE_BUTTON) || clickedItem.getType().equals(Menu.SEPARATION_BUTTON)) {
@@ -137,8 +145,9 @@ public class ChestListener implements Listener {
     @EventHandler
     public void on(InventoryCloseEvent event) {
         // if this is not an inventory from the plugin
-        if (!(event.getInventory().getHolder() instanceof Menu))
+        if (!(event.getInventory().getHolder() instanceof Menu)) {
             return;
+        }
 
         Inventory inventory = event.getInventory();
         // one tick later
