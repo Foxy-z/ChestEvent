@@ -77,9 +77,9 @@ public class ChestListener implements Listener {
     @EventHandler
     public void onUseButton(InventoryClickEvent event) {
         // if this is not an inventory from the plugin
-        if (!(event.getInventory().getHolder() instanceof Menu)) return;
+        if (!(event.getClickedInventory().getHolder() instanceof Menu)) return;
         Player player = (Player) event.getWhoClicked();
-        Inventory inventory = event.getInventory();
+        Inventory inventory = event.getClickedInventory();
 
         Menu menu = (Menu) inventory.getHolder();
         ItemStack clickedItem = event.getCurrentItem();
@@ -112,7 +112,7 @@ public class ChestListener implements Listener {
     @EventHandler
     public void onInventoryClick(InventoryClickEvent event) {
         // if this is not an inventory from the plugin
-        if (!(event.getInventory().getHolder() instanceof Menu)) return;
+        if (!(event.getClickedInventory().getHolder() instanceof Menu)) return;
         Player player = (Player) event.getWhoClicked();
         Inventory inventory = event.getClickedInventory();
         if (inventory == null) return;
@@ -157,7 +157,9 @@ public class ChestListener implements Listener {
             return;
 
         Inventory inventory = event.getInventory();
+        // one tick later
         Bukkit.getScheduler().runTaskLater(plugin, () -> {
+            // check if the opened inventory is from the plugin
             if (event.getPlayer().getOpenInventory().getTopInventory().getHolder() instanceof Menu)
                 return;
             Menu menu = (Menu) inventory.getHolder();
