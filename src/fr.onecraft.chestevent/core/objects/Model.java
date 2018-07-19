@@ -70,15 +70,29 @@ public class Model {
     }
 
     public Chest createChest() {
-        File file = new File(plugin.getDataFolder() + "/Models", eventName + ".yml");
-        YamlConfiguration configuration = new YamlConfiguration();
+
+        /*
+         * Ouverture du fichier model
+         * Création d'une config pour le chest
+         * Ouverture du fichier de stockage de l'id
+         * Création d'un nouvel id
+         */
+        File modelFile = new File(plugin.getDataFolder() + "/Models", eventName + ".yml");
+        YamlConfiguration chestConfig = new YamlConfiguration();
         YamlConfiguration data = YamlConfiguration.loadConfiguration(new File(plugin.getDataFolder(), "data.yml"));
         data.set("id", data.getInt("id") + 1);
         try {
-            FileInputStream fileinputstream = new FileInputStream(file);
-            configuration.load(new InputStreamReader(fileinputstream, Charset.forName("UTF-8")));
-            configuration.set("expire-date", System.currentTimeMillis() + 345600000);
-            configuration.save(new File(plugin.getDataFolder() + "/Chests", data.getInt("id") + ".yml"));
+
+            /*
+             * Chargement de la config du modèle dans la config du chest
+             * Ajout d'une ligne pour la date d'expiration
+             * Enregistrement de la config du chest
+             * Enregistrement du fichier data (stockage de l'id actuel)
+             */
+            FileInputStream modelInputStream = new FileInputStream(modelFile);
+            chestConfig.load(new InputStreamReader(modelInputStream, Charset.forName("UTF-8")));
+            chestConfig.set("expire-date", System.currentTimeMillis() + 345600000);
+            chestConfig.save(new File(plugin.getDataFolder() + "/Chests", data.getInt("id") + ".yml"));
             data.save(new File(plugin.getDataFolder(), "data.yml"));
             return Chest.fromId(plugin, data.getInt("id"));
         } catch (IOException | InvalidConfigurationException e) {
