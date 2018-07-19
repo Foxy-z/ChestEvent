@@ -85,7 +85,8 @@ public class ChestListener implements Listener {
         Menu menu = (Menu) inventory.getHolder();
         event.setCancelled(true);
         ItemStack clickedItem = event.getCurrentItem();
-        if (clickedItem == null) return;
+        // check if clicked item is null or is air
+        if (clickedItem == null || clickedItem.getType().equals(Material.AIR)) return;
 
         // if clicked item is a button
         if (clickedItem.getType().equals(Menu.PAGE_BUTTON) || clickedItem.getType().equals(Menu.SEPARATION_BUTTON)) {
@@ -109,9 +110,6 @@ public class ChestListener implements Listener {
             }
             return;
         }
-
-        // check if the clicked item is not null or not air
-        if (clickedItem.getType().equals(Material.AIR)) return;
 
         // if player's inventory is not full else tell him
         if (player.getInventory().firstEmpty() != -1) {
