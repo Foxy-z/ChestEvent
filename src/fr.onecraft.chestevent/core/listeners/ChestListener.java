@@ -16,6 +16,8 @@ import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 
+import java.util.List;
+
 public class ChestListener implements Listener {
     private ChestEvent plugin;
 
@@ -43,13 +45,21 @@ public class ChestListener implements Listener {
         ItemMeta meta = item.getItemMeta();
 
         // check if the chest's name is right
-        if (meta.getDisplayName() == null || !meta.getDisplayName().startsWith("§6§lCoffre d'événement §f§ln°")) {
+        if (meta.getDisplayName() == null || !meta.getDisplayName().startsWith(Chest.chestName)) {
+            return;
+        }
+
+        List<String> lore = meta.getLore();
+        // check if lore is right
+        if (lore.isEmpty() || lore.size() < 2) {
             return;
         }
 
         int id;
         try {
-            id = Integer.parseInt(meta.getDisplayName().substring(29));
+            // get the id from the lore
+            String lastLoreLine = lore.get(lore.size() - 1);
+            id = Integer.parseInt(lastLoreLine.substring(lastLoreLine.lastIndexOf("#")));
         } catch (NumberFormatException e) {
             return;
         }
@@ -59,7 +69,6 @@ public class ChestListener implements Listener {
         // delete the chest if he is null
         if (chest == null) {
             player.getInventory().setItemInHand(new ItemStack(Material.AIR));
-            player.updateInventory();
             chest.delete();
             player.sendMessage(ChestEvent.ERROR + "Ce coffre n'existe plus.");
             return;
