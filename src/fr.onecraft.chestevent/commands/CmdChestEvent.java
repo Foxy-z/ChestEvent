@@ -94,11 +94,6 @@ public class CmdChestEvent implements CommandExecutor {
     private void info(CommandSender sender, String event) {
         Bukkit.getScheduler().runTaskAsynchronously(plugin, () -> {
             Model model = Model.fromName(plugin, event);
-            if (!Model.isValidName(event)) {
-                sender.sendMessage(ChestEvent.PREFIX + "Le nom du modèle n'est pas valide, il ne peut comporter que des lettres, chiffres et tirets.");
-                return;
-            }
-
             if (model == null) {
                 sender.sendMessage(ChestEvent.PREFIX + "La configuration du modèle n'est pas valide.");
                 return;
@@ -210,11 +205,6 @@ public class CmdChestEvent implements CommandExecutor {
 
     private void viewContent(CommandSender sender, String event) {
         Bukkit.getScheduler().runTaskAsynchronously(plugin, () -> {
-            if (!Model.isValidName(event)) {
-                sender.sendMessage(ChestEvent.PREFIX + "Le nom du modèle n'est pas valide, il ne peut comporter que des lettres, chiffres et tirets.");
-                return;
-            }
-
             Model model = Model.fromName(plugin, event);
             if (model == null) {
                 sender.sendMessage(ChestEvent.PREFIX + "La configuration du modèle n'est pas valide.");
