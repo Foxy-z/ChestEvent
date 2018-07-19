@@ -72,51 +72,63 @@ public class Model {
 
     public Chest createChest() {
         YamlConfiguration chestConfig = new YamlConfiguration();
-        ConfigurationSection data = Configs.get(plugin, "", "data");
-        data.set("id", data.getInt("id") + 1);
         chestConfig.set("", Configs.get(plugin, "Models", eventName));
         chestConfig.set("expire-date", System.currentTimeMillis() + 345600000);
-        Configs.save(plugin, chestConfig, "Chests", data.getInt("id") + "");
-        Configs.save(plugin, data, "", "data");
-        return Chest.fromId(plugin, data.getInt("id"));
+        int id = getAndIncrementId();
+        Configs.save(plugin, chestConfig, "Chests", id + "");
+        return Chest.fromId(plugin, id);
     }
 
-    private List<ItemStack> loadContent(ConfigurationSection configuration) {
+    private int getAndIncrementId() {
+        ConfigurationSection data = Configs.get(plugin, "", "data");
+        data.set("id", data.getInt("id") + 1);
+        Configs.save(plugin, data, "", "data");
+        return data.getInt("id");
+    }
+
+    public static List<ItemStack> loadContent(ConfigurationSection configuration) {
         List<ItemStack> items = new ArrayList<>();
         List<String> slots = new ArrayList<>(configuration.getConfigurationSection("items").getKeys(false));
-        slots.forEach(item -> {
+        slots.forEach((String item) -> {
+            //Pour tous les items de la config
             try {
                 ConfigurationSection slot = configuration.getConfigurationSection("items." + item);
-                Material type = Material.valueOf(slot.getString("type").split(":")[0]);
 
+                Material type = Material.valueOf(slot.getString("type").split(":")[0]);
+                //Récupération de la metadata si présente
                 short metadata = slot.getString("type").split(":").length > 1
                         ? Short.parseShort(slot.getString("type").split(":")[1])
                         : 0;
-
+                //Récupération du nom s'il y en a un + conversion & en §
                 String name = slot.getString("name") != null
                         ? "§f" + slot.getString("name").replace("&", "§")
                         : "";
-
-                int amount = (slot.getString("amount") != null
+                //Récupération du nombre d'items, 1 par défaut
+                int amount = slot.getString("amount") != null
                         ? slot.getInt("amount")
-                        : 1);
-
+                        : 1;
+                //Récupération des lignes de description
                 List<String> lore = slot.getStringList("lore");
+
+                //Ajout d'une couleur au début + conversion des & en §
                 List<String> coloredLore = lore.stream()
                         .map(string -> "§7" + string.replace("&", "§"))
                         .collect(Collectors.toList());
-
+                //Récupération de la liste des enchants
                 List<String> enchants = slot.getStringList("enchant");
                 ItemStack itemStack = new ItemStack(type,
                         amount,
                         metadata);
 
                 ItemMeta meta = itemStack.getItemMeta();
+                //Si un nom a été entré
                 if (!name.isEmpty())
                     meta.setDisplayName(name);
-
                 meta.setLore(coloredLore);
+
+                //S'il y a des enchants
                 if (enchants != null)
+                    //Les ajouter
                     enchants.forEach(enchant -> meta.addEnchant(Enchantment.getByName(enchant.split(":")[0]),
                             Integer.parseInt(enchant.split(":")[1]),
                             true));
@@ -141,10 +153,12 @@ public class Model {
             if (!path.exists()) return;
             MODEL_LIST.clear();
             for (File file : path.listFiles()) {
-                String fileName = file.getName().replace(".yml", "");
-                Model model = fromName(plugin, fileName);
-                if (model != null && isValidName(fileName))
-                    MODEL_LIST.add(fromName(plugin, fileName));
+                if (file.getName().endsWith(".yml")) {
+                    String fileName = file.getName().replace(".yml", "");
+                    Model model = fromName(plugin, fileName);
+                    if (model != null && isValidName(fileName))
+                        MODEL_LIST.add(fromName(plugin, fileName));
+                }
             }
         });
     }
