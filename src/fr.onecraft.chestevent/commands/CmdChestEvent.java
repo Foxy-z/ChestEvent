@@ -76,7 +76,7 @@ public class CmdChestEvent implements CommandExecutor {
     private void showEventList(CommandSender sender) {
         Bukkit.getScheduler().runTaskAsynchronously(plugin, () -> {
             List<Model> models = new ArrayList(Model.getEventList());
-            if (models.size() == 0) {
+            if (models.isEmpty()) {
                 sender.sendMessage(ChestEvent.PREFIX + "Il n'y a aucun événement.");
                 return;
             }
@@ -144,14 +144,14 @@ public class CmdChestEvent implements CommandExecutor {
 
     private void viewContent(CommandSender sender, String event) {
         Bukkit.getScheduler().runTaskAsynchronously(plugin, () -> {
-            Model model = Model.fromName(plugin, event);
-            if (model == null) {
-                sender.sendMessage(ChestEvent.PREFIX + "La configuration du modèle n'est pas valide.");
+            if (!Model.isValidName(event)) {
+                sender.sendMessage(ChestEvent.PREFIX + "Le nom du modèle n'est pas valide, il ne peut comporter que des lettres, chiffres et tirets.");
                 return;
             }
 
-            if (!Model.isModelValide(model)) {
-                sender.sendMessage(ChestEvent.PREFIX + "Le nom du modèle n'est pas valide, il ne peut comporter que des lettres, chiffres et tirets.");
+            Model model = Model.fromName(plugin, event);
+            if (model == null) {
+                sender.sendMessage(ChestEvent.PREFIX + "La configuration du modèle n'est pas valide.");
                 return;
             }
 
@@ -166,7 +166,7 @@ public class CmdChestEvent implements CommandExecutor {
                 if (itemStack.getItemMeta().getLore() != null)
                     lore = itemStack.getItemMeta().getLore().stream().map(desc -> "\n" + desc).collect(Collectors.joining());
                 StringBuilder enchants = new StringBuilder();
-                if (itemStack.getItemMeta().getEnchants().size() > 0) {
+                if (!itemStack.getItemMeta().getEnchants().isEmpty()) {
                     for (Enchantment enchantment : meta.getEnchants().keySet()) {
                         enchants.append("\n").append(" §8– §b").append(enchantment.getName()).append(" niv.").append(meta.getEnchants().values().toArray()[count]);
                         count++;
@@ -174,10 +174,10 @@ public class CmdChestEvent implements CommandExecutor {
                 }
 
                 component.setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, new ComponentBuilder(
-                        (lore.length() > 0 ? "§7§lDescription" : "")
+                        (!lore.isEmpty() ? "§7§lDescription" : "")
                                 + lore
-                                + ((lore.length() > 0 && meta.getEnchants().size() > 0) ? "\n\n" : "")
-                                + (meta.getEnchants().size() > 0 ? "§7§lEnchantements" : "")
+                                + ((!lore.isEmpty() && !meta.getEnchants().isEmpty()) ? "\n\n" : "")
+                                + (!meta.getEnchants().isEmpty() ? "§7§lEnchantements" : "")
                                 + enchants.toString()
                 ).create()));
                 items.add(component);
@@ -238,15 +238,16 @@ public class CmdChestEvent implements CommandExecutor {
     private void info(CommandSender sender, String event) {
         Bukkit.getScheduler().runTaskAsynchronously(plugin, () -> {
             Model model = Model.fromName(plugin, event);
+            if (!Model.isValidName(event)) {
+                sender.sendMessage(ChestEvent.PREFIX + "Le nom du modèle n'est pas valide, il ne peut comporter que des lettres, chiffres et tirets.");
+                return;
+            }
+
             if (model == null) {
                 sender.sendMessage(ChestEvent.PREFIX + "La configuration du modèle n'est pas valide.");
                 return;
             }
 
-            if (!Model.isModelValide(model)) {
-                sender.sendMessage(ChestEvent.PREFIX + "Le nom du modèle n'est pas valide, il ne peut comporter que des lettres, chiffres et tirets.");
-                return;
-            }
             sender.sendMessage(ChestEvent.PREFIX + "Informations sur l'événement §a" + event + "\n"
                     + " §8- §7Description: §b" + model.getDescription() + "\n"
                     + " §8- §7Permission: §b" + model.getPermission() + "\n"
@@ -255,16 +256,17 @@ public class CmdChestEvent implements CommandExecutor {
     }
 
     private void give(CommandSender sender, String event, String[] args) {
+        if (!Model.isValidName(event)) {
+            sender.sendMessage(ChestEvent.PREFIX + "Le nom du modèle n'est pas valide, il ne peut comporter que des lettres, chiffres et tirets.");
+            return;
+        }
+
         Model model = Model.fromName(plugin, event);
         if (model == null) {
             sender.sendMessage(ChestEvent.PREFIX + "La configuration du modèle n'est pas valide.");
             return;
         }
 
-        if (!Model.isModelValide(model)) {
-            sender.sendMessage(ChestEvent.PREFIX + "Le nom du modèle n'est pas valide, il ne peut comporter que des lettres, chiffres et tirets.");
-            return;
-        }
         Chest chest = model.createChest();
 
         if (chest == null) {

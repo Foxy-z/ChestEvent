@@ -76,19 +76,27 @@ public class Chest {
             try {
                 ConfigurationSection slot = configuration.getConfigurationSection("items." + item);
                 Material type = Material.valueOf(slot.getString("type").split(":")[0]);
-                short metadata = slot.getString("type").split(":").length > 1 ? Short.parseShort(slot.getString("type").split(":")[1]) : 0;
-                String name = slot.getString("name") != null ? "§f" + slot.getString("name").replace("&", "§") : "";
-                int amount = (slot.getString("amount") != null ? slot.getInt("amount") : 1);
+                short metadata = slot.getString("type").split(":").length > 1 ?
+                        Short.parseShort(slot.getString("type").split(":")[1]) : 0;
+                String name = slot.getString("name") != null ?
+                        "§f" + slot.getString("name").replace("&", "§") : "";
+                int amount = (slot.getString("amount") != null ?
+                        slot.getInt("amount") : 1);
                 List<String> lore = slot.getStringList("lore");
-                List<String> coloredLore;
-                coloredLore = lore.stream().map(string -> "§7" + string.replace("&", "§")).collect(Collectors.toList());
+                List<String> coloredLore = lore.stream()
+                        .map(string -> "§7" + string.replace("&", "§"))
+                        .collect(Collectors.toList());
                 List<String> enchants = slot.getStringList("enchant");
-                ItemStack itemStack = new ItemStack(type, amount, metadata);
+                ItemStack itemStack = new ItemStack(type,
+                        amount,
+                        metadata);
                 ItemMeta meta = itemStack.getItemMeta();
-                if (!name.equalsIgnoreCase("")) meta.setDisplayName(name);
+                if (!name.equalsIgnoreCase(""))
+                    meta.setDisplayName(name);
                 meta.setLore(coloredLore);
                 if (enchants != null)
-                    enchants.forEach(enchant -> meta.addEnchant(Enchantment.getByName(enchant.split(":")[0]), Integer.parseInt(enchant.split(":")[1]), true));
+                    enchants
+                            .forEach(enchant -> meta.addEnchant(Enchantment.getByName(enchant.split(":")[0]), Integer.parseInt(enchant.split(":")[1]), true));
                 itemStack.setItemMeta(meta);
                 items.add(itemStack);
             } catch (Exception e) {

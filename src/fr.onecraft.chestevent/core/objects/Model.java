@@ -1,6 +1,7 @@
 package fr.onecraft.chestevent.core.objects;
 
 import fr.onecraft.chestevent.ChestEvent;
+import fr.onecraft.chestevent.core.helpers.Configs;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.configuration.ConfigurationSection;
@@ -65,46 +66,24 @@ public class Model {
         return itemList;
     }
 
-    public static boolean isModelValide(Model model) {
-        return model.getName().replaceAll("[a-zA-Z0-9_-]", "").equalsIgnoreCase("");
+    public static boolean isValidName(String name) {
+        return name.matches("^[a-zA-Z0-9_-]{3,30}$");
     }
 
     public Chest createChest() {
-
-        /*
-         * Ouverture du fichier model
-         * Création d'une config pour le chest
-         * Ouverture du fichier de stockage de l'id
-         * Création d'un nouvel id
-         */
-        File modelFile = new File(plugin.getDataFolder() + "/Models", eventName + ".yml");
         YamlConfiguration chestConfig = new YamlConfiguration();
-        YamlConfiguration data = YamlConfiguration.loadConfiguration(new File(plugin.getDataFolder(), "data.yml"));
+        ConfigurationSection data = Configs.get(plugin, "", "data");
         data.set("id", data.getInt("id") + 1);
-        try {
-
-            /*
-             * Chargement de la config du modèle dans la config du chest
-             * Ajout d'une ligne pour la date d'expiration
-             * Enregistrement de la config du chest
-             * Enregistrement du fichier data (stockage de l'id actuel)
-             */
-            FileInputStream modelInputStream = new FileInputStream(modelFile);
-            chestConfig.load(new InputStreamReader(modelInputStream, Charset.forName("UTF-8")));
-            chestConfig.set("expire-date", System.currentTimeMillis() + 345600000);
-            chestConfig.save(new File(plugin.getDataFolder() + "/Chests", data.getInt("id") + ".yml"));
-            data.save(new File(plugin.getDataFolder(), "data.yml"));
-            return Chest.fromId(plugin, data.getInt("id"));
-        } catch (IOException | InvalidConfigurationException e) {
-            e.printStackTrace();
-            return null;
-        }
+        chestConfig.set("", Configs.get(plugin, "Models", eventName));
+        chestConfig.set("expire-date", System.currentTimeMillis() + 345600000);
+        Configs.save(plugin, chestConfig, "Chests", data.getInt("id") + "");
+        Configs.save(plugin, chestConfig, "", "data");
+        return Chest.fromId(plugin, data.getInt("id"));
     }
 
     private List<ItemStack> loadContent(ConfigurationSection configuration) {
-        List<String> slots;
         List<ItemStack> items = new ArrayList<>();
-        slots = new ArrayList<>(configuration.getConfigurationSection("items").getKeys(false));
+        List<String> slots = new ArrayList<>(configuration.getConfigurationSection("items").getKeys(false));
         slots.forEach(item -> {
             try {
                 ConfigurationSection slot = configuration.getConfigurationSection("items." + item);
@@ -118,7 +97,8 @@ public class Model {
                 List<String> enchants = slot.getStringList("enchant");
                 ItemStack itemStack = new ItemStack(type, amount, metadata);
                 ItemMeta meta = itemStack.getItemMeta();
-                if (!name.equalsIgnoreCase("")) meta.setDisplayName(name);
+                if (!name.equalsIgnoreCase(""))
+                    meta.setDisplayName(name);
                 meta.setLore(coloredLore);
                 if (enchants != null)
                     enchants.forEach(enchant -> meta.addEnchant(Enchantment.getByName(enchant.split(":")[0]), Integer.parseInt(enchant.split(":")[1]), true));
@@ -142,9 +122,10 @@ public class Model {
             if (!path.exists()) return;
             MODEL_LIST.clear();
             for (File file : path.listFiles()) {
-                Model model = fromName(plugin, file.getName().replace(".yml", ""));
-                if (model != null && isModelValide(model))
-                    MODEL_LIST.add(fromName(plugin, file.getName().replace(".yml", "")));
+                String fileName = file.getName().replace(".yml", "");
+                Model model = fromName(plugin, fileName);
+                if (model != null && isValidName(fileName))
+                    MODEL_LIST.add(fromName(plugin, fileName));
             }
         });
     }
