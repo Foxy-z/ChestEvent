@@ -60,36 +60,45 @@ public class Chest {
         List<ItemStack> items = new ArrayList<>();
         List<String> slots = new ArrayList<>(configuration.getConfigurationSection("items").getKeys(false));
         slots.forEach(item -> {
+            //Pour tous les items de la config
             try {
                 ConfigurationSection slot = configuration.getConfigurationSection("items." + item);
 
                 Material type = Material.valueOf(slot.getString("type").split(":")[0]);
+                //Récupération de la metadata si présente
                 short metadata = slot.getString("type").split(":").length > 1
                         ? Short.parseShort(slot.getString("type").split(":")[1])
                         : 0;
+                //Récupération du nom s'il y en a un + conversion & en §
                 String name = slot.getString("name") != null
                         ? "§f" + slot.getString("name").replace("&", "§")
                         : "";
-                int amount = (slot.getString("amount") != null
-                        ? slot.getInt("amount") : 1);
-
+                //Récupération du nombre d'items, 1 par défaut
+                int amount = slot.getString("amount") != null
+                        ? slot.getInt("amount")
+                        : 1;
+                //Récupération des lignes de description
                 List<String> lore = slot.getStringList("lore");
+
+                //Ajout d'une couleur au début + conversion des & en §
                 List<String> coloredLore = lore.stream()
                         .map(string -> "§7" + string.replace("&", "§"))
                         .collect(Collectors.toList());
-
+                //Récupération de la liste des enchants
                 List<String> enchants = slot.getStringList("enchant");
                 ItemStack itemStack = new ItemStack(type,
                         amount,
                         metadata);
 
                 ItemMeta meta = itemStack.getItemMeta();
-
+                //Si un nom a été entré
                 if (!name.isEmpty())
                     meta.setDisplayName(name);
                 meta.setLore(coloredLore);
 
+                //S'il y a des enchants
                 if (enchants != null)
+                    //Les ajouter
                     enchants.forEach(enchant -> meta.addEnchant(Enchantment.getByName(enchant.split(":")[0]),
                             Integer.parseInt(enchant.split(":")[1]),
                             true));
