@@ -1,6 +1,5 @@
 package fr.onecraft.chestevent.core.helpers;
 
-import org.bukkit.Bukkit;
 import org.bukkit.configuration.Configuration;
 import org.bukkit.configuration.InvalidConfigurationException;
 import org.bukkit.configuration.file.YamlConfiguration;
@@ -11,6 +10,7 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.nio.charset.Charset;
+import java.util.Set;
 
 public class Configs {
     public static Configuration get(JavaPlugin plugin, String folder, String filename) {
@@ -39,7 +39,11 @@ public class Configs {
 
     public static boolean save(JavaPlugin plugin, Configuration config, String folder, String configName) {
         try {
-            YamlConfiguration configuration = (YamlConfiguration) config;
+            YamlConfiguration configuration = new YamlConfiguration();
+            Set<String> keys = config.getKeys(false);
+            for (String key : keys) {
+                configuration.set(key, config.get(key));
+            }
             configuration.save(new File(plugin.getDataFolder() + (folder.isEmpty() ? "" : "/") + folder, configName + ".yml"));
             return true;
         } catch (IOException e) {
@@ -50,7 +54,11 @@ public class Configs {
 
     public static boolean save(JavaPlugin plugin, Configuration config, String folder, int configName) {
         try {
-            YamlConfiguration configuration = (YamlConfiguration) config;
+            YamlConfiguration configuration = new YamlConfiguration();
+            Set<String> keys = config.getKeys(false);
+            for (String key : keys) {
+                configuration.set(key, config.get(key));
+            }
             configuration.save(new File(plugin.getDataFolder() + (folder.isEmpty() ? "" : "/") + folder, configName + ".yml"));
             return true;
         } catch (IOException e) {

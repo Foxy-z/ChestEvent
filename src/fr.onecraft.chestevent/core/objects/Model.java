@@ -139,10 +139,13 @@ public class Model {
             File path = new File(plugin.getDataFolder() + "/Models");
             if (!path.exists()) return;
             MODEL_LIST.clear();
+            // for all finded files
             for (File file : path.listFiles()) {
+                // if it is a yml file
                 if (file.getName().endsWith(".yml")) {
                     String fileName = file.getName().replace(".yml", "");
                     Model model = fromName(plugin, fileName);
+                    // if file is valid add its name to cache
                     if (model != null && isValidName(fileName)) {
                         MODEL_LIST.add(fromName(plugin, fileName));
                     }

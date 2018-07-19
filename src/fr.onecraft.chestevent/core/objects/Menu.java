@@ -122,7 +122,7 @@ public class Menu implements InventoryHolder {
                 enchants.add(enchantment.getName() + ":" + meta.getEnchants().values().toArray()[count]);
                 count++;
             }
-            
+
             // save enchants if exists
             if (!enchants.isEmpty()) {
                 items.set("items." + "slot" + slot + ".enchant", enchants);
@@ -131,7 +131,6 @@ public class Menu implements InventoryHolder {
             slot++;
             configuration.set("items.slot" + slot, items);
         }
-
         Configs.save(plugin, configuration, "Chests", id);
     }
 

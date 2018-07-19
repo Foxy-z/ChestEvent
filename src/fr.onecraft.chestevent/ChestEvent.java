@@ -60,10 +60,13 @@ public class ChestEvent extends JavaPlugin {
     private void removeOldFiles() {
         File[] files = new File(this.getDataFolder() + "/Chests").listFiles();
         if (files == null) return;
+        // for all files in the "chest" folder
         Arrays.stream(files).filter(file -> {
+            // if it is a yml file
             if (file.getName().endsWith(".yml")) {
                 Configuration configuration = Configs.get(this, "Chests", file.getName().replace(".yml", ""));
                 long expireDate = configuration.getLong("expire-date");
+                // return if file has expired
                 return System.currentTimeMillis() > expireDate;
             }
             return false;
