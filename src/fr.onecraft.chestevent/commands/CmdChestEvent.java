@@ -144,7 +144,18 @@ public class CmdChestEvent implements CommandExecutor {
 
     private void viewContent(CommandSender sender, String event) {
         Bukkit.getScheduler().runTaskAsynchronously(plugin, () -> {
-            ArrayList<ItemStack> rawItems = new ArrayList<>(Model.fromName(plugin, event).getContent());
+            Model model = Model.fromName(plugin, event);
+            if (model == null) {
+                sender.sendMessage(ChestEvent.PREFIX + "La configuration du modèle n'est pas valide.");
+                return;
+            }
+
+            if (!Model.isModelValide(model)) {
+                sender.sendMessage(ChestEvent.PREFIX + "Le nom du modèle n'est pas valide, il ne peut comporter que des lettres, chiffres et tirets.");
+                return;
+            }
+
+            ArrayList<ItemStack> rawItems = new ArrayList<>(model.getContent());
             ArrayList<TextComponent> items = new ArrayList<>();
             int num = 1;
             for (ItemStack itemStack : rawItems) {
@@ -227,6 +238,15 @@ public class CmdChestEvent implements CommandExecutor {
     private void info(CommandSender sender, String event) {
         Bukkit.getScheduler().runTaskAsynchronously(plugin, () -> {
             Model model = Model.fromName(plugin, event);
+            if (model == null) {
+                sender.sendMessage(ChestEvent.PREFIX + "La configuration du modèle n'est pas valide.");
+                return;
+            }
+
+            if (!Model.isModelValide(model)) {
+                sender.sendMessage(ChestEvent.PREFIX + "Le nom du modèle n'est pas valide, il ne peut comporter que des lettres, chiffres et tirets.");
+                return;
+            }
             sender.sendMessage(ChestEvent.PREFIX + "Informations sur l'événement §a" + event + "\n"
                     + " §8- §7Description: §b" + model.getDescription() + "\n"
                     + " §8- §7Permission: §b" + model.getPermission() + "\n"
