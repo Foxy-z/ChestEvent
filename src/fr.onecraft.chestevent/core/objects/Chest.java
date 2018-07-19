@@ -57,9 +57,8 @@ public class Chest {
     }
 
     private List<ItemStack> loadContent(ConfigurationSection configuration) {
-        List<String> slots;
         List<ItemStack> items = new ArrayList<>();
-        slots = new ArrayList<>(configuration.getConfigurationSection("items").getKeys(false));
+        List<String> slots = new ArrayList<>(configuration.getConfigurationSection("items").getKeys(false));
         slots.forEach(item -> {
             try {
                 ConfigurationSection slot = configuration.getConfigurationSection("items." + item);
