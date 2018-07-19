@@ -23,7 +23,6 @@ import java.util.stream.Collectors;
 public class Model {
     private ChestEvent plugin;
     private String eventName;
-    private String code;
     private String description;
     private List<ItemStack> itemList;
     private static List<Model> MODEL_LIST = new ArrayList<>();
@@ -40,16 +39,15 @@ public class Model {
         }
     }
 
-    private Model(ChestEvent plugin, ConfigurationSection config, String  eventName) {
+    private Model(ChestEvent plugin, ConfigurationSection config, String eventName) {
         this.plugin = plugin;
         this.eventName = eventName;
-        this.code = config.getString("code-name");
         this.description = config.getString("description");
         this.itemList = loadContent(config);
     }
 
     private String getCode() {
-        return code;
+        return eventName.toLowerCase();
     }
 
     public String getName() {
@@ -66,6 +64,10 @@ public class Model {
 
     public List<ItemStack> getContent() {
         return itemList;
+    }
+
+    public static boolean isModelValide(Model model) {
+        return model.getName().replaceAll("[a-zA-Z0-9_-]", "").equalsIgnoreCase("");
     }
 
     public Chest createChest() {

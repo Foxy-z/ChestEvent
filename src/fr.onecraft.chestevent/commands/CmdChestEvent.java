@@ -42,7 +42,7 @@ public class CmdChestEvent implements CommandExecutor {
             showEventList(sender);
         } else if (action.equalsIgnoreCase("reload")) {
             reloadCache(sender);
-        }  else if (args.length < 2) {
+        } else if (args.length < 2) {
             showHelp(sender);
         } else {
             String event = args[1];
@@ -235,7 +235,21 @@ public class CmdChestEvent implements CommandExecutor {
     }
 
     private void give(CommandSender sender, String event, String[] args) {
-        Chest chest = Model.fromName(plugin, event).createChest();
+        Model model = Model.fromName(plugin, event);
+        if (model == null) {
+            sender.sendMessage(ChestEvent.PREFIX + "La configuration du modèle n'est pas valide.");
+            return;
+        }
+
+        if (!Model.isModelValide(model)) {
+            sender.sendMessage(ChestEvent.PREFIX + "Le nom du modèle n'est pas valide, il ne peut comporter que des lettres, chiffres et tirets.");
+            return;
+        }
+        Chest chest = model.createChest();
+
+        if (chest == null) {
+            return;
+        }
 
         if (args.length > 2) {
             Player target = Bukkit.getPlayer(args[2]);
