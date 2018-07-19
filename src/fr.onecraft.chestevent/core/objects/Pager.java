@@ -11,7 +11,7 @@ public class Pager {
     private int currentPage;
     private List<TextComponent> messages;
 
-    public Pager(String event, ArrayList<TextComponent> messages) {
+    public Pager(String event, List<TextComponent> messages) {
         this.event = event;
         this.size = 15;
         this.currentPage = 1;

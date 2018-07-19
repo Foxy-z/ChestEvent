@@ -65,6 +65,11 @@ public class CmdChestEvent implements CommandExecutor {
      * METHODS
      */
 
+    private void reloadCache(CommandSender sender) {
+        Model.loadEventList(plugin);
+        sender.sendMessage(ChestEvent.PREFIX + "Les modèles ont été chargés.");
+    }
+
     private void showHelp(CommandSender sender) {
         sender.sendMessage(ChestEvent.PREFIX + "Gère les récompenses d'événements"
                 + (sender.hasPermission("chestevent.info") ? "\n§b/chestevent info <event>§7 informations sur un événement" : "")
@@ -75,7 +80,7 @@ public class CmdChestEvent implements CommandExecutor {
 
     private void showEventList(CommandSender sender) {
         Bukkit.getScheduler().runTaskAsynchronously(plugin, () -> {
-            List<Model> models = new ArrayList(Model.getEventList());
+            List<Model> models = Model.getEventList();
             if (models.isEmpty()) {
                 sender.sendMessage(ChestEvent.PREFIX + "Il n'y a aucun événement.");
                 return;
@@ -86,9 +91,70 @@ public class CmdChestEvent implements CommandExecutor {
         });
     }
 
-    private void reloadCache(CommandSender sender) {
-        Model.loadEventList(plugin);
-        sender.sendMessage(ChestEvent.PREFIX + "Les modèles ont été chargés.");
+    private void info(CommandSender sender, String event) {
+        Bukkit.getScheduler().runTaskAsynchronously(plugin, () -> {
+            Model model = Model.fromName(plugin, event);
+            if (!Model.isValidName(event)) {
+                sender.sendMessage(ChestEvent.PREFIX + "Le nom du modèle n'est pas valide, il ne peut comporter que des lettres, chiffres et tirets.");
+                return;
+            }
+
+            if (model == null) {
+                sender.sendMessage(ChestEvent.PREFIX + "La configuration du modèle n'est pas valide.");
+                return;
+            }
+
+            sender.sendMessage(ChestEvent.PREFIX + "Informations sur l'événement §a" + event + "\n"
+                    + " §8- §7Description: §b" + model.getDescription() + "\n"
+                    + " §8- §7Permission: §b" + model.getPermission() + "\n"
+            );
+        });
+    }
+
+    private void give(CommandSender sender, String event, String[] args) {
+        if (!Model.isValidName(event)) {
+            sender.sendMessage(ChestEvent.PREFIX + "Le nom du modèle n'est pas valide, il ne peut comporter que des lettres, chiffres et tirets.");
+            return;
+        }
+
+        Model model = Model.fromName(plugin, event);
+        if (model == null) {
+            sender.sendMessage(ChestEvent.PREFIX + "La configuration du modèle n'est pas valide.");
+            return;
+        }
+
+        Chest chest = model.createChest();
+
+        if (chest == null) {
+            return;
+        }
+
+        if (args.length > 2) {
+            Player target = Bukkit.getPlayer(args[2]);
+            if (target != null) {
+                if (target.getInventory().firstEmpty() == -1) {
+                    sender.sendMessage(ChestEvent.ERROR + "Impossible de donner le coffre, l'inventaire de §a" + target.getName() + " §7est plein.");
+                    return;
+                }
+
+                sender.sendMessage(ChestEvent.PREFIX + "§a" + sender.getName() + " §7a reçu le coffre de l'événement §a" + event + "§7.");
+                target.getInventory().addItem(chest.getChestItem());
+            } else
+                sender.sendMessage(ChestEvent.ERROR + "§a" + args[2] + " §7est introuvable.");
+        } else {
+            if (sender instanceof Player) {
+                Player player = (Player) sender;
+                if (player.getInventory().firstEmpty() == -1) {
+                    sender.sendMessage(ChestEvent.ERROR + "Impossible de vous donner le coffre, votre inventaire est plein.");
+                    return;
+                }
+
+                sender.sendMessage(ChestEvent.PREFIX + "Vous avez reçu le coffre de l'événement §a" + event + "§7.");
+                player.getInventory().addItem(chest.getChestItem());
+            } else {
+                sender.sendMessage(ChestEvent.PREFIX + "Vous devez etre un joueur pour effectuer cette action.");
+            }
+        }
     }
 
     private void showPage(CommandSender sender, String arg) {
@@ -155,8 +221,8 @@ public class CmdChestEvent implements CommandExecutor {
                 return;
             }
 
-            ArrayList<ItemStack> rawItems = new ArrayList<>(model.getContent());
-            ArrayList<TextComponent> items = new ArrayList<>();
+            List<ItemStack> rawItems = model.getContent();
+            List<TextComponent> items = new ArrayList<>();
             int num = 1;
             for (ItemStack itemStack : rawItems) {
                 ItemMeta meta = itemStack.getItemMeta();
@@ -233,71 +299,5 @@ public class CmdChestEvent implements CommandExecutor {
                 items.stream().map(b -> b.toLegacyText()).forEach(sender::sendMessage);
             }
         });
-    }
-
-    private void info(CommandSender sender, String event) {
-        Bukkit.getScheduler().runTaskAsynchronously(plugin, () -> {
-            Model model = Model.fromName(plugin, event);
-            if (!Model.isValidName(event)) {
-                sender.sendMessage(ChestEvent.PREFIX + "Le nom du modèle n'est pas valide, il ne peut comporter que des lettres, chiffres et tirets.");
-                return;
-            }
-
-            if (model == null) {
-                sender.sendMessage(ChestEvent.PREFIX + "La configuration du modèle n'est pas valide.");
-                return;
-            }
-
-            sender.sendMessage(ChestEvent.PREFIX + "Informations sur l'événement §a" + event + "\n"
-                    + " §8- §7Description: §b" + model.getDescription() + "\n"
-                    + " §8- §7Permission: §b" + model.getPermission() + "\n"
-            );
-        });
-    }
-
-    private void give(CommandSender sender, String event, String[] args) {
-        if (!Model.isValidName(event)) {
-            sender.sendMessage(ChestEvent.PREFIX + "Le nom du modèle n'est pas valide, il ne peut comporter que des lettres, chiffres et tirets.");
-            return;
-        }
-
-        Model model = Model.fromName(plugin, event);
-        if (model == null) {
-            sender.sendMessage(ChestEvent.PREFIX + "La configuration du modèle n'est pas valide.");
-            return;
-        }
-
-        Chest chest = model.createChest();
-
-        if (chest == null) {
-            return;
-        }
-
-        if (args.length > 2) {
-            Player target = Bukkit.getPlayer(args[2]);
-            if (target != null) {
-                if (target.getInventory().firstEmpty() == -1) {
-                    sender.sendMessage(ChestEvent.ERROR + "Impossible de donner le coffre, l'inventaire de §a" + target.getName() + " §7est plein.");
-                    return;
-                }
-
-                sender.sendMessage(ChestEvent.PREFIX + "§a" + sender.getName() + " §7a reçu le coffre de l'événement §a" + event + "§7.");
-                target.getInventory().addItem(chest.getChestItem());
-            } else
-                sender.sendMessage(ChestEvent.ERROR + "§a" + args[2] + " §7est introuvable.");
-        } else {
-            if (sender instanceof Player) {
-                Player player = (Player) sender;
-                if (player.getInventory().firstEmpty() == -1) {
-                    sender.sendMessage(ChestEvent.ERROR + "Impossible de vous donner le coffre, votre inventaire est plein.");
-                    return;
-                }
-
-                sender.sendMessage(ChestEvent.PREFIX + "Vous avez reçu le coffre de l'événement §a" + event + "§7.");
-                player.getInventory().addItem(chest.getChestItem());
-            } else {
-                sender.sendMessage(ChestEvent.PREFIX + "Vous devez etre un joueur pour effectuer cette action.");
-            }
-        }
     }
 }
