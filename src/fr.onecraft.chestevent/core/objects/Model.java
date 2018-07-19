@@ -102,6 +102,7 @@ public class Model {
             ItemStack itemStack = new ItemStack(type, amount, metadata);
             ItemMeta meta = itemStack.getItemMeta();
 
+            // set name
             String name = slot.getString("name");
             if (name != null) {
                 meta.setDisplayName("§f" + ChatColor.translateAlternateColorCodes('&', name));

@@ -88,22 +88,22 @@ public class Menu implements InventoryHolder {
             ConfigurationSection items = configuration.getConfigurationSection("items.slot" + slot);
             ItemMeta meta = itemStack.getItemMeta();
 
-            // saving item type and metadata
+            // save item type and metadata
             String itemType = itemStack.getType().toString().split(":")[0];
             String metadata = ":" + itemStack.getData().getData();
             items.set("type", itemType + metadata);
 
-            // saving item amount if bigger than 1
+            // save item amount if bigger than 1
             if (itemStack.getAmount() > 1) {
                 items.set("amount", itemStack.getAmount());
             }
 
-            // saving item name if exists
+            // save item name if exists
             if (!meta.getDisplayName().isEmpty()) {
                 items.set("name", meta.getDisplayName().replace("§", "&").substring(2));
             }
 
-            //saving lore if exists
+            // save lore if exists
             List<String> lore = new ArrayList<>();
             if (meta.getLore() != null) {
                 lore = meta.getLore().stream()
@@ -115,14 +115,15 @@ public class Menu implements InventoryHolder {
                 items.set("lore", lore);
             }
 
-            // translating enchants to string
+            // translate enchants to string
             List<String> enchants = new ArrayList<>();
             int count = 0;
             for (Enchantment enchantment : meta.getEnchants().keySet()) {
                 enchants.add(enchantment.getName() + ":" + meta.getEnchants().values().toArray()[count]);
                 count++;
             }
-            // saving enchants if exists
+            
+            // save enchants if exists
             if (!enchants.isEmpty()) {
                 items.set("items." + "slot" + slot + ".enchant", enchants);
             }
