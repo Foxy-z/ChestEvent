@@ -121,6 +121,7 @@ public class CmdChestEvent implements CommandExecutor {
         Chest chest = model.createChest();
 
         if (chest == null) {
+            sender.sendMessage(ChestEvent.PREFIX + "Erreur lors de la création du coffre.");
             return;
         }
 
@@ -171,8 +172,9 @@ public class CmdChestEvent implements CommandExecutor {
             previewPage.setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, new ComponentBuilder(
                     "§7Aller à la page précédente"
             ).create()));
-            if (pager.getCurrentPage() >= 2)
+            if (pager.getCurrentPage() >= 2) {
                 previewPage.setClickEvent(new ClickEvent(ClickEvent.Action.RUN_COMMAND, "/chestevent :" + (pager.getCurrentPage() - 1)));
+            }
             message.addExtra(previewPage);
 
             TextComponent pages = new TextComponent(" " + pager.getCurrentPage());
@@ -190,8 +192,9 @@ public class CmdChestEvent implements CommandExecutor {
             nextPage.setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, new ComponentBuilder(
                     "§7Aller à la page suivante"
             ).create()));
-            if (pager.getCurrentPage() < pager.getPages())
+            if (pager.getCurrentPage() < pager.getPages()) {
                 nextPage.setClickEvent(new ClickEvent(ClickEvent.Action.RUN_COMMAND, "/chestevent :" + (pager.getCurrentPage() + 1)));
+            }
             message.addExtra(nextPage);
 
             sender.sendMessage("\n");
@@ -211,10 +214,10 @@ public class CmdChestEvent implements CommandExecutor {
                 return;
             }
 
-            List<ItemStack> rawItems = model.getContent();
-            List<TextComponent> items = new ArrayList<>();
+            List<ItemStack> items = model.getContent();
+            List<TextComponent> messages = new ArrayList<>();
             int num = 1;
-            for (ItemStack itemStack : rawItems) {
+            for (ItemStack itemStack : items) {
                 ItemMeta meta = itemStack.getItemMeta();
                 int count = 0;
                 TextComponent component = new TextComponent("§7" + num + " §8- §b" + itemStack.getType() + " x" + itemStack.getAmount() + "§8, §7" + itemStack.getItemMeta().getDisplayName());
@@ -236,11 +239,11 @@ public class CmdChestEvent implements CommandExecutor {
                                 + (!meta.getEnchants().isEmpty() ? "§7§lEnchantements" : "")
                                 + enchants.toString()
                 ).create()));
-                items.add(component);
+                messages.add(component);
                 num++;
             }
 
-            Pager pager = new Pager(event, items);
+            Pager pager = new Pager(event, messages);
             if (sender instanceof Player)
                 plugin.getPagers().put(((Player) sender).getUniqueId(), pager);
 
@@ -286,7 +289,7 @@ public class CmdChestEvent implements CommandExecutor {
                 pager.getPage(1).forEach(msg -> player.spigot().sendMessage(msg));
             } else {
                 sender.sendMessage(BaseComponent.toLegacyText(message));
-                items.stream().map(b -> b.toLegacyText()).forEach(sender::sendMessage);
+                messages.stream().map(b -> b.toLegacyText()).forEach(sender::sendMessage);
             }
         });
     }

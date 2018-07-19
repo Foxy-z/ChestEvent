@@ -3,6 +3,7 @@ package fr.onecraft.chestevent.core.objects;
 import fr.onecraft.chestevent.ChestEvent;
 import fr.onecraft.chestevent.core.helpers.Configs;
 import org.bukkit.Material;
+import org.bukkit.configuration.Configuration;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
@@ -17,8 +18,12 @@ public class Chest {
     private List<ItemStack> itemList;
 
     public static Chest fromId(ChestEvent plugin, int id) {
-        ConfigurationSection configuration = Configs.get(plugin, "Chests", id + "");
-        return new Chest(plugin, configuration, id);
+        Configuration configuration = Configs.get(plugin, "Chests", id);
+        if (!(configuration == null)) {
+            return new Chest(plugin, configuration, id);
+        } else {
+            return null;
+        }
     }
 
     private Chest(ChestEvent plugin, ConfigurationSection config, int id) {

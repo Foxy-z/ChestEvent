@@ -3,22 +3,17 @@ package fr.onecraft.chestevent.core.objects;
 import fr.onecraft.chestevent.ChestEvent;
 import fr.onecraft.chestevent.core.helpers.Configs;
 import org.bukkit.Bukkit;
+import org.bukkit.ChatColor;
 import org.bukkit.Material;
+import org.bukkit.configuration.Configuration;
 import org.bukkit.configuration.ConfigurationSection;
-import org.bukkit.configuration.InvalidConfigurationException;
-import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 
 import java.io.File;
-import java.io.FileInputStream;
-import java.io.IOException;
-import java.io.InputStreamReader;
-import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Collectors;
 
 public class Model {
     private ChestEvent plugin;
@@ -28,13 +23,10 @@ public class Model {
     private static List<Model> MODEL_LIST = new ArrayList<>();
 
     public static Model fromName(ChestEvent plugin, String name) {
-        try {
-            YamlConfiguration configuration = new YamlConfiguration();
-            File file = new File(plugin.getDataFolder() + "/Models", name + ".yml");
-            FileInputStream fileinputstream = new FileInputStream(file);
-            configuration.load(new InputStreamReader(fileinputstream, Charset.forName("UTF-8")));
+        Configuration configuration = Configs.get(plugin, "Models", name);
+        if (!(configuration == null)) {
             return new Model(plugin, configuration, name);
-        } catch (InvalidConfigurationException | IOException e) {
+        } else {
             return null;
         }
     }
@@ -71,16 +63,15 @@ public class Model {
     }
 
     public Chest createChest() {
-        YamlConfiguration chestConfig = new YamlConfiguration();
-        chestConfig.set("", Configs.get(plugin, "Models", eventName));
+        Configuration chestConfig = Configs.get(plugin, "Models", eventName);
         chestConfig.set("expire-date", System.currentTimeMillis() + 345600000);
         int id = getAndIncrementId();
-        Configs.save(plugin, chestConfig, "Chests", id + "");
+        Configs.save(plugin, chestConfig, "Chests", id);
         return Chest.fromId(plugin, id);
     }
 
     private int getAndIncrementId() {
-        ConfigurationSection data = Configs.get(plugin, "", "data");
+        Configuration data = Configs.get(plugin, "", "data");
         data.set("id", data.getInt("id") + 1);
         Configs.save(plugin, data, "", "data");
         return data.getInt("id");
@@ -90,54 +81,49 @@ public class Model {
         List<ItemStack> items = new ArrayList<>();
         List<String> slots = new ArrayList<>(configuration.getConfigurationSection("items").getKeys(false));
         slots.forEach((String item) -> {
-            //Pour tous les items de la config
-            try {
-                ConfigurationSection slot = configuration.getConfigurationSection("items." + item);
+            ConfigurationSection slot = configuration.getConfigurationSection("items." + item);
 
-                Material type = Material.valueOf(slot.getString("type").split(":")[0]);
-                //Récupération de la metadata si présente
-                short metadata = slot.getString("type").split(":").length > 1
-                        ? Short.parseShort(slot.getString("type").split(":")[1])
-                        : 0;
-                //Récupération du nom s'il y en a un + conversion & en §
-                String name = slot.getString("name") != null
-                        ? "§f" + slot.getString("name").replace("&", "§")
-                        : "";
-                //Récupération du nombre d'items, 1 par défaut
-                int amount = slot.getString("amount") != null
-                        ? slot.getInt("amount")
-                        : 1;
-                //Récupération des lignes de description
-                List<String> lore = slot.getStringList("lore");
+            // get item type
+            Material type = Material.valueOf(slot.getString("type").split(":")[0]);
 
-                //Ajout d'une couleur au début + conversion des & en §
-                List<String> coloredLore = lore.stream()
-                        .map(string -> "§7" + string.replace("&", "§"))
-                        .collect(Collectors.toList());
-                //Récupération de la liste des enchants
-                List<String> enchants = slot.getStringList("enchant");
-                ItemStack itemStack = new ItemStack(type,
-                        amount,
-                        metadata);
-
-                ItemMeta meta = itemStack.getItemMeta();
-                //Si un nom a été entré
-                if (!name.isEmpty())
-                    meta.setDisplayName(name);
-                meta.setLore(coloredLore);
-
-                //S'il y a des enchants
-                if (enchants != null)
-                    //Les ajouter
-                    enchants.forEach(enchant -> meta.addEnchant(Enchantment.getByName(enchant.split(":")[0]),
-                            Integer.parseInt(enchant.split(":")[1]),
-                            true));
-
-                itemStack.setItemMeta(meta);
-                items.add(itemStack);
-            } catch (Exception e) {
-                e.printStackTrace();
+            // get item amount
+            int amount = slot.getInt("amount");
+            if (amount <= 0) {
+                amount = 1;
             }
+
+            // get metadata
+            short metadata = 0;
+            // if metadata is set in config
+            if (slot.getString("type").split(":").length > 1) {
+                metadata = Short.parseShort(slot.getString("type").split(":")[1]);
+            }
+
+            ItemStack itemStack = new ItemStack(type, amount, metadata);
+            ItemMeta meta = itemStack.getItemMeta();
+
+            String name = slot.getString("name");
+            if (name != null) {
+                meta.setDisplayName("§f" + ChatColor.translateAlternateColorCodes('&', name));
+            }
+
+            // add lore
+            List<String> loreList = new ArrayList<>();
+            slot.getStringList("lore").stream()
+                    .map(lore -> "§7" + ChatColor.translateAlternateColorCodes('&', lore))
+                    .forEach(loreList::add);
+            meta.setLore(loreList);
+
+            // add enchants
+            slot.getStringList("enchant").stream()
+                    .forEach(enchant -> meta.addEnchant(
+                            Enchantment.getByName(enchant.split(":")[0]),
+                            Integer.parseInt(enchant.split(":")[1]),
+                            true
+                    ));
+
+            itemStack.setItemMeta(meta);
+            items.add(itemStack);
         });
         return items;
     }
@@ -156,8 +142,9 @@ public class Model {
                 if (file.getName().endsWith(".yml")) {
                     String fileName = file.getName().replace(".yml", "");
                     Model model = fromName(plugin, fileName);
-                    if (model != null && isValidName(fileName))
+                    if (model != null && isValidName(fileName)) {
                         MODEL_LIST.add(fromName(plugin, fileName));
+                    }
                 }
             }
         });

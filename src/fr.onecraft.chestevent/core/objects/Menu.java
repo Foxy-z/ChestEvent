@@ -1,10 +1,11 @@
 package fr.onecraft.chestevent.core.objects;
 
 import fr.onecraft.chestevent.ChestEvent;
+import fr.onecraft.chestevent.core.helpers.Configs;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
-import org.bukkit.configuration.InvalidConfigurationException;
-import org.bukkit.configuration.file.YamlConfiguration;
+import org.bukkit.configuration.Configuration;
+import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.InventoryHolder;
@@ -12,7 +13,6 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 
 import java.io.File;
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -81,43 +81,57 @@ public class Menu implements InventoryHolder {
     }
 
     public void saveChest() {
-        YamlConfiguration configuration = new YamlConfiguration();
-        try {
-            configuration.load(new File(plugin.getDataFolder() + "/Chests", id + ".yml"));
-        } catch (IOException | InvalidConfigurationException ignored) {
-        }
-
+        Configuration configuration = Configs.get(plugin, "Chests", id);
         int slot = 1;
-        configuration.set("items", null);
         for (ItemStack itemStack : getItems()) {
+            configuration.createSection("items.slot" + slot);
+            ConfigurationSection items = configuration.getConfigurationSection("items.slot" + slot);
             ItemMeta meta = itemStack.getItemMeta();
-            String metadata = itemStack.getData().getData() > 0 ? ":" + itemStack.getData().getData() : "";
+
+            // saving item type and metadata
+            String itemType = itemStack.getType().toString().split(":")[0];
+            String metadata = ":" + itemStack.getData().getData();
+            items.set("type", itemType + metadata);
+
+            // saving item amount if bigger than 1
+            if (itemStack.getAmount() > 1) {
+                items.set("amount", itemStack.getAmount());
+            }
+
+            // saving item name if exists
+            if (!meta.getDisplayName().isEmpty()) {
+                items.set("name", meta.getDisplayName().replace("§", "&").substring(2));
+            }
+
+            //saving lore if exists
             List<String> lore = new ArrayList<>();
-            if (meta.getLore() != null)
-                lore = meta.getLore().stream().map(string -> string.replace("§", "&").substring(2)).collect(Collectors.toList());
+            if (meta.getLore() != null) {
+                lore = meta.getLore().stream()
+                        .map(string -> string.replace("§", "&").substring(2))
+                        .collect(Collectors.toList());
+            }
+
+            if (!lore.isEmpty()) {
+                items.set("lore", lore);
+            }
+
+            // translating enchants to string
             List<String> enchants = new ArrayList<>();
             int count = 0;
             for (Enchantment enchantment : meta.getEnchants().keySet()) {
                 enchants.add(enchantment.getName() + ":" + meta.getEnchants().values().toArray()[count]);
                 count++;
             }
+            // saving enchants if exists
+            if (!enchants.isEmpty()) {
+                items.set("items." + "slot" + slot + ".enchant", enchants);
+            }
 
-            configuration.set("items." + "slot" + slot + ".type", itemStack.getType().toString().split(":")[0] + metadata);
-            if (itemStack.getAmount() != 1)
-                configuration.set("items." + "slot" + slot + ".amount", itemStack.getAmount());
-            if (meta.getDisplayName() != null)
-                configuration.set("items." + "slot" + slot + ".name", meta.getDisplayName().replace("§", "&").substring(2));
-            if (!lore.isEmpty())
-                configuration.set("items." + "slot" + slot + ".lore", lore);
-            if (!enchants.isEmpty())
-                configuration.set("items." + "slot" + slot + ".enchant", enchants);
             slot++;
+            configuration.set("items.slot" + slot, items);
         }
 
-        try {
-            configuration.save(new File(plugin.getDataFolder() + "/Chests", id + ".yml"));
-        } catch (IOException ignored) {
-        }
+        Configs.save(plugin, configuration, "Chests", id);
     }
 
     /*

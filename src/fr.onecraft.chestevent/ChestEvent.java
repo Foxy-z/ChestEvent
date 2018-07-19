@@ -1,6 +1,7 @@
 package fr.onecraft.chestevent;
 
 import fr.onecraft.chestevent.commands.CmdChestEvent;
+import fr.onecraft.chestevent.core.helpers.Configs;
 import fr.onecraft.chestevent.core.listeners.ChestListener;
 import fr.onecraft.chestevent.core.listeners.PlayerListener;
 import fr.onecraft.chestevent.core.objects.Model;
@@ -8,13 +9,11 @@ import fr.onecraft.chestevent.core.objects.Pager;
 import fr.onecraft.chestevent.tabCompleter.CompleterChestEvent;
 import org.bukkit.Bukkit;
 import org.bukkit.command.PluginCommand;
-import org.bukkit.configuration.ConfigurationSection;
-import org.bukkit.configuration.file.YamlConfiguration;
+import org.bukkit.configuration.Configuration;
 import org.bukkit.plugin.PluginManager;
 import org.bukkit.plugin.java.JavaPlugin;
 
 import java.io.File;
-import java.io.IOException;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
@@ -48,14 +47,10 @@ public class ChestEvent extends JavaPlugin {
     }
 
     private void generateFiles() {
-        YamlConfiguration configuration = YamlConfiguration.loadConfiguration(new File(this.getDataFolder(), "data.yml"));
+        Configuration configuration = Configs.get(this, "", "data");
         if (configuration.get("id") == null) {
             configuration.set("id", 0);
-            try {
-                configuration.save(new File(this.getDataFolder(), "data.yml"));
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
+            Configs.save(this, configuration, "", "data");
         }
 
         File file = new File(this.getDataFolder() + "/Models");
@@ -66,9 +61,12 @@ public class ChestEvent extends JavaPlugin {
         File[] files = new File(this.getDataFolder() + "/Chests").listFiles();
         if (files == null) return;
         Arrays.stream(files).filter(file -> {
-            ConfigurationSection configuration = YamlConfiguration.loadConfiguration(file);
-            long expireDate = configuration.getLong("expire-date");
-            return System.currentTimeMillis() > expireDate;
+            if (file.getName().endsWith(".yml")) {
+                Configuration configuration = Configs.get(this, "Chests", file.getName().replace(".yml", ""));
+                long expireDate = configuration.getLong("expire-date");
+                return System.currentTimeMillis() > expireDate;
+            }
+            return false;
         }).forEach(File::delete);
     }
 
