@@ -2,7 +2,6 @@ package fr.onecraft.chestevent.core.objects;
 
 import net.md_5.bungee.api.chat.TextComponent;
 
-import java.util.ArrayList;
 import java.util.List;
 
 public class Pager {
@@ -20,14 +19,16 @@ public class Pager {
 
     public List<TextComponent> getPage(int page) {
         currentPage = page;
-        return new ArrayList<>(messages.subList((page - 1) * size, getPages() == page ? messages.size() : page * size));
+        int from = (page - 1) * size;
+        int to = getMaxPage() == page ? messages.size() : page * size;
+        return messages.subList(from, to);
     }
 
     public String getEvent() {
         return event;
     }
 
-    public int getPages() {
+    public int getMaxPage() {
         return (int) Math.ceil((double) messages.size() / size);
     }
 

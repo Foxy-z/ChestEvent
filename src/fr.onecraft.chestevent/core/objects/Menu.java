@@ -86,6 +86,7 @@ public class Menu implements InventoryHolder {
     public void saveChest() {
         Configuration configuration = Configs.get(plugin, "Chests", id);
         int slot = 1;
+        configuration.set("items", null);
         for (ItemStack itemStack : getItems()) {
             configuration.createSection("items.slot" + slot);
             ConfigurationSection items = configuration.getConfigurationSection("items.slot" + slot);
@@ -128,11 +129,10 @@ public class Menu implements InventoryHolder {
 
             // save enchants if exists
             if (!enchants.isEmpty()) {
-                items.set("items." + "slot" + slot + ".enchant", enchants);
+                items.set("enchant", enchants);
             }
-
-            slot++;
             configuration.set("items.slot" + slot, items);
+            slot++;
         }
         Configs.save(plugin, configuration, "Chests", id);
     }

@@ -158,7 +158,7 @@ public class CmdChestEvent implements CommandExecutor {
         try {
             int page = Integer.parseInt(number);
             Pager pager = plugin.getPagers().get(((Player) sender).getUniqueId());
-            if (pager.getPages() < page) {
+            if (pager.getMaxPage() < page) {
                 sender.sendMessage(ChestEvent.ERROR + "Cette page n'existe pas.");
                 return;
             }
@@ -183,16 +183,16 @@ public class CmdChestEvent implements CommandExecutor {
             pages = new TextComponent("/");
             pages.setColor(ChatColor.GRAY);
             message.addExtra(pages);
-            pages = new TextComponent(pager.getPages() + " ");
+            pages = new TextComponent(pager.getMaxPage() + " ");
             pages.setColor(ChatColor.GRAY);
             message.addExtra(pages);
 
             TextComponent nextPage = new TextComponent("[-->]");
-            nextPage.setColor(pager.getCurrentPage() < pager.getPages() ? ChatColor.YELLOW : ChatColor.DARK_GRAY);
+            nextPage.setColor(pager.getCurrentPage() < pager.getMaxPage() ? ChatColor.YELLOW : ChatColor.DARK_GRAY);
             nextPage.setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, new ComponentBuilder(
                     "§7Aller à la page suivante"
             ).create()));
-            if (pager.getCurrentPage() < pager.getPages()) {
+            if (pager.getCurrentPage() < pager.getMaxPage()) {
                 nextPage.setClickEvent(new ClickEvent(ClickEvent.Action.RUN_COMMAND, "/chestevent :" + (pager.getCurrentPage() + 1)));
             }
             message.addExtra(nextPage);
@@ -267,16 +267,16 @@ public class CmdChestEvent implements CommandExecutor {
                 pages = new TextComponent("/");
                 pages.setColor(ChatColor.GRAY);
                 message.addExtra(pages);
-                pages = new TextComponent(pager.getPages() + " ");
+                pages = new TextComponent(pager.getMaxPage() + " ");
                 pages.setColor(ChatColor.GRAY);
                 message.addExtra(pages);
 
                 TextComponent nextPage = new TextComponent("[-->]");
-                nextPage.setColor(pager.getCurrentPage() < pager.getPages() ? ChatColor.YELLOW : ChatColor.DARK_GRAY);
+                nextPage.setColor(pager.getCurrentPage() < pager.getMaxPage() ? ChatColor.YELLOW : ChatColor.DARK_GRAY);
                 nextPage.setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, new ComponentBuilder(
                         "§7Aller à la page suivante"
                 ).create()));
-                if (pager.getCurrentPage() < pager.getPages())
+                if (pager.getCurrentPage() < pager.getMaxPage())
                     nextPage.setClickEvent(new ClickEvent(ClickEvent.Action.RUN_COMMAND, "/chestevent :" + (pager.getCurrentPage() + 1)));
                 message.addExtra(nextPage);
             }

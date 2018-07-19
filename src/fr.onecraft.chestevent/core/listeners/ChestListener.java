@@ -77,7 +77,7 @@ public class ChestListener implements Listener {
     @EventHandler
     public void onUseButton(InventoryClickEvent event) {
         // if this is not an inventory from the plugin
-        if (!(event.getClickedInventory().getHolder() instanceof Menu)) return;
+        if (!(event.getInventory().getHolder() instanceof Menu)) return;
         Player player = (Player) event.getWhoClicked();
         Inventory inventory = event.getClickedInventory();
 
@@ -112,7 +112,7 @@ public class ChestListener implements Listener {
     @EventHandler
     public void onInventoryClick(InventoryClickEvent event) {
         // if this is not an inventory from the plugin
-        if (!(event.getClickedInventory().getHolder() instanceof Menu)) return;
+        if (!(event.getInventory().getHolder() instanceof Menu)) return;
         Player player = (Player) event.getWhoClicked();
         Inventory inventory = event.getClickedInventory();
         if (inventory == null) return;
