@@ -19,12 +19,8 @@ public class Pager {
     }
 
     public List<TextComponent> getPage(int page) {
-        List<TextComponent> result = new ArrayList<>();
-        for (int i = 0; i < ((messages.size() - (page - 1) * size >= size) ? size : messages.size() - ((page - 1) * size)); i++) {
-            result.add(messages.get(((page - 1) * size) + i));
-        }
         currentPage = page;
-        return result;
+        return new ArrayList<>(messages.subList((page - 1) * size, getPages() == page ? messages.size() : page * size));
     }
 
     public String getEvent() {
@@ -32,7 +28,7 @@ public class Pager {
     }
 
     public int getPages() {
-        return (int) (Math.ceil((double) messages.size() / size) == 0 ? 1 : Math.ceil((double) messages.size() / size));
+        return (int) Math.ceil((double) messages.size() / size);
     }
 
     public int getCurrentPage() {

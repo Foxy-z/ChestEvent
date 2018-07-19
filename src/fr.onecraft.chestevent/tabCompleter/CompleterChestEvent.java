@@ -14,12 +14,6 @@ public class CompleterChestEvent implements TabCompleter {
 
     @Override
     public List<String> onTabComplete(CommandSender sender, Command command, String s, String[] args) {
-
-        /*
-         * Si c'est le premier argument
-         * Si le joueur a les permissions
-         * Ajouter les completions
-         */
         if (args.length <= 1) {
             String token = args.length == 0 ? "" : args[0].toLowerCase();
             Set<String> choices = new HashSet<>();
@@ -27,16 +21,12 @@ public class CompleterChestEvent implements TabCompleter {
             if (sender.hasPermission("chestevent.info")) choices.add("info");
             if (sender.hasPermission("chestevent.viewcontent")) choices.add("viewcontent");
             if (sender.hasPermission("chestevent.list")) choices.add("list");
+            if (sender.hasPermission("chestevent.reload")) choices.add("reload");
             return choices.stream()
                     .filter(choice -> choice.startsWith(token))
                     .collect(Collectors.toList());
         }
 
-        /*
-         * Si c'est le deuxième argument
-         * Si le joueur a les permissions
-         * Ajouter les completions
-         */
         if (args.length == 2) {
             if (sender.hasPermission("chestevent.give") || sender.hasPermission("chestevent.info")
                     || sender.hasPermission("chestevent.viewcontent")) {
@@ -47,7 +37,6 @@ public class CompleterChestEvent implements TabCompleter {
                         .collect(Collectors.toList());
             }
         }
-
         return null;
     }
 }

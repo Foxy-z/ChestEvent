@@ -157,7 +157,7 @@ public class CmdChestEvent implements CommandExecutor {
         String number = arg.substring(1);
         try {
             int page = Integer.parseInt(number);
-            Pager pager = plugin.getPagers().get(sender);
+            Pager pager = plugin.getPagers().get(((Player) sender).getUniqueId());
             if (pager.getPages() < page) {
                 sender.sendMessage(ChestEvent.ERROR + "Cette page n'existe pas.");
                 return;
@@ -167,15 +167,15 @@ public class CmdChestEvent implements CommandExecutor {
             TextComponent message = new TextComponent(ChestEvent.PREFIX + "Contenu de l'événement §a" + pager.getEvent());
             message.setColor(ChatColor.GRAY);
             message.addExtra(": ");
-            TextComponent previewPage = new TextComponent("[<--]");
-            previewPage.setColor(pager.getCurrentPage() >= 2 ? ChatColor.YELLOW : ChatColor.DARK_GRAY);
-            previewPage.setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, new ComponentBuilder(
+            TextComponent previousPage = new TextComponent("[<--]");
+            previousPage.setColor(pager.getCurrentPage() >= 2 ? ChatColor.YELLOW : ChatColor.DARK_GRAY);
+            previousPage.setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, new ComponentBuilder(
                     "§7Aller à la page précédente"
             ).create()));
             if (pager.getCurrentPage() >= 2) {
-                previewPage.setClickEvent(new ClickEvent(ClickEvent.Action.RUN_COMMAND, "/chestevent :" + (pager.getCurrentPage() - 1)));
+                previousPage.setClickEvent(new ClickEvent(ClickEvent.Action.RUN_COMMAND, "/chestevent :" + (pager.getCurrentPage() - 1)));
             }
-            message.addExtra(previewPage);
+            message.addExtra(previousPage);
 
             TextComponent pages = new TextComponent(" " + pager.getCurrentPage());
             pages.setColor(ChatColor.GRAY);
