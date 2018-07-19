@@ -45,13 +45,13 @@ public class ChestListener implements Listener {
         ItemMeta meta = item.getItemMeta();
 
         // check if the chest's name is right
-        if (meta.getDisplayName() == null || !meta.getDisplayName().startsWith(Chest.chestName)) {
+        if (meta.getDisplayName() == null || !meta.getDisplayName().equalsIgnoreCase(Chest.chestName)) {
             return;
         }
 
         List<String> lore = meta.getLore();
         // check if lore is right
-        if (lore.isEmpty() || lore.size() < 2) {
+        if (lore == null || lore.size() < 2) {
             return;
         }
 
@@ -59,7 +59,7 @@ public class ChestListener implements Listener {
         try {
             // get the id from the lore
             String lastLoreLine = lore.get(lore.size() - 1);
-            id = Integer.parseInt(lastLoreLine.substring(lastLoreLine.lastIndexOf("#")));
+            id = Integer.parseInt(lastLoreLine.substring(lastLoreLine.lastIndexOf("#") + 1));
         } catch (NumberFormatException e) {
             return;
         }
