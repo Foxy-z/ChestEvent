@@ -25,7 +25,6 @@ public class ChestListener implements Listener {
         this.plugin = plugin;
     }
 
-
     /*
      * When an item is clicked
      */
@@ -36,6 +35,7 @@ public class ChestListener implements Listener {
         if (!action.equals(Action.RIGHT_CLICK_BLOCK) && !action.equals(Action.RIGHT_CLICK_AIR)) {
             return;
         }
+
         Player player = event.getPlayer();
         ItemStack item = player.getItemInHand();
         // if clicked item is a chest
@@ -165,7 +165,12 @@ public class ChestListener implements Listener {
             if (event.getPlayer().getOpenInventory().getTopInventory().getHolder() instanceof Menu)
                 return;
             Menu menu = (Menu) inventory.getHolder();
-            if (menu.getItems().isEmpty()) return;
+
+            // skip the saving if the inventory is empty
+            if (menu.getItems().isEmpty()) {
+                return;
+            }
+
             menu.saveChest();
         }, 1);
     }

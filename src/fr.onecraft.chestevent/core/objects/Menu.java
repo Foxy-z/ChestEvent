@@ -45,6 +45,7 @@ public class Menu implements InventoryHolder {
                 if (count >= (page - 1) * 45 && count < page * 45) {
                     result.setItem(count, item);
                 }
+
                 result.setItem(51, getNextButton());
                 result.setItem(49, getPageButton(page));
                 result.setItem(47, getPreviewButton());
@@ -131,6 +132,7 @@ public class Menu implements InventoryHolder {
             if (!enchants.isEmpty()) {
                 items.set("enchant", enchants);
             }
+
             configuration.set("items.slot" + slot, items);
             slot++;
         }

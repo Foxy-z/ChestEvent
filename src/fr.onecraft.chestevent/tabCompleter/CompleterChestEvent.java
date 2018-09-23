@@ -28,8 +28,10 @@ public class CompleterChestEvent implements TabCompleter {
         }
 
         if (args.length == 2) {
-            if (sender.hasPermission("chestevent.give") || sender.hasPermission("chestevent.info")
+            if (sender.hasPermission("chestevent.give")
+                    || sender.hasPermission("chestevent.info")
                     || sender.hasPermission("chestevent.viewcontent")) {
+
                 String token = args[1].toLowerCase();
                 return Model.getEventList().stream()
                         .map(model -> model.getName().replace(".yml", ""))

@@ -17,6 +17,7 @@ import org.bukkit.inventory.meta.ItemMeta;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 public class CmdChestEvent implements CommandExecutor {
@@ -61,10 +62,6 @@ public class CmdChestEvent implements CommandExecutor {
         return true;
     }
 
-    /*
-     * METHODS
-     */
-
     private void reloadCache(CommandSender sender) {
         Model.loadEventList(plugin);
         sender.sendMessage(ChestEvent.PREFIX + "Les modèles ont été chargés.");
@@ -81,6 +78,8 @@ public class CmdChestEvent implements CommandExecutor {
     private void showEventList(CommandSender sender) {
         Bukkit.getScheduler().runTaskAsynchronously(plugin, () -> {
             List<Model> models = Model.getEventList();
+
+            // return an error if there is not any event
             if (models.isEmpty()) {
                 sender.sendMessage(ChestEvent.PREFIX + "Il n'y a aucun événement.");
                 return;
@@ -94,6 +93,8 @@ public class CmdChestEvent implements CommandExecutor {
     private void info(CommandSender sender, String event) {
         Bukkit.getScheduler().runTaskAsynchronously(plugin, () -> {
             Model model = Model.fromName(plugin, event);
+
+            // return an error if the model's configuration is not valid
             if (model == null) {
                 sender.sendMessage(ChestEvent.PREFIX + "La configuration du modèle n'est pas valide.");
                 return;
@@ -107,12 +108,15 @@ public class CmdChestEvent implements CommandExecutor {
     }
 
     private void give(CommandSender sender, String event, String[] args) {
+        // return an error if the model's name is not valid
         if (!Model.isValidName(event)) {
             sender.sendMessage(ChestEvent.PREFIX + "Le nom du modèle n'est pas valide, il ne peut comporter que des lettres, chiffres et tirets.");
             return;
         }
 
         Model model = Model.fromName(plugin, event);
+
+        // return an error if the model's configuration is not valid
         if (model == null) {
             sender.sendMessage(ChestEvent.PREFIX + "La configuration du modèle n'est pas valide.");
             return;
@@ -120,14 +124,19 @@ public class CmdChestEvent implements CommandExecutor {
 
         Chest chest = model.createChest();
 
+        // return an error if the plugin can't create the chest
         if (chest == null) {
             sender.sendMessage(ChestEvent.PREFIX + "Erreur lors de la création du coffre.");
             return;
         }
 
+        // if there is a specified player to get the chest or else give it to the command sender
         if (args.length > 2) {
             Player target = Bukkit.getPlayer(args[2]);
+            // give the chest if the player is online or else return an error
+
             if (target != null) {
+                // return an error if the player's inventory is full
                 if (target.getInventory().firstEmpty() == -1) {
                     sender.sendMessage(ChestEvent.ERROR + "Impossible de donner le coffre, l'inventaire de §a" + target.getName() + " §7est plein.");
                     return;
@@ -135,11 +144,15 @@ public class CmdChestEvent implements CommandExecutor {
 
                 sender.sendMessage(ChestEvent.PREFIX + "§a" + sender.getName() + " §7a reçu le coffre de l'événement §a" + event + "§7.");
                 target.getInventory().addItem(chest.getChestItem());
-            } else
+            } else {
                 sender.sendMessage(ChestEvent.ERROR + "§a" + args[2] + " §7est introuvable.");
+            }
         } else {
+            // give the chest to the sender if it is a player
             if (sender instanceof Player) {
                 Player player = (Player) sender;
+
+                // return an error if the player's inventory is full
                 if (player.getInventory().firstEmpty() == -1) {
                     sender.sendMessage(ChestEvent.ERROR + "Impossible de vous donner le coffre, votre inventaire est plein.");
                     return;
@@ -156,50 +169,28 @@ public class CmdChestEvent implements CommandExecutor {
     private void showPage(CommandSender sender, String arg) {
         String number = arg.substring(1);
         try {
+            // parse the string to a number
             int page = Integer.parseInt(number);
+
+            // get pager from cache
             Pager pager = plugin.getPagers().get(((Player) sender).getUniqueId());
-            if (pager.getMaxPage() < page) {
+
+            // return an error if the page doesn't exists
+            if (pager.getMaxPage() < page || page < 1) {
                 sender.sendMessage(ChestEvent.ERROR + "Cette page n'existe pas.");
                 return;
             }
 
+            // update the current page
             pager.setCurrentPage(page);
-            TextComponent message = new TextComponent(ChestEvent.PREFIX + "Contenu de l'événement §a" + pager.getEvent());
+
+            // add the first line with prefix + event name + page selector
+            TextComponent message = new TextComponent(ChestEvent.PREFIX + "Contenu de l'événement §a" + pager.getEvent() + ":" + getPageSelector(pager));
             message.setColor(ChatColor.GRAY);
-            message.addExtra(": ");
-            TextComponent previousPage = new TextComponent("[<--]");
-            previousPage.setColor(pager.getCurrentPage() >= 2 ? ChatColor.YELLOW : ChatColor.DARK_GRAY);
-            previousPage.setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, new ComponentBuilder(
-                    "§7Aller à la page précédente"
-            ).create()));
-            if (pager.getCurrentPage() >= 2) {
-                previousPage.setClickEvent(new ClickEvent(ClickEvent.Action.RUN_COMMAND, "/chestevent :" + (pager.getCurrentPage() - 1)));
-            }
-            message.addExtra(previousPage);
 
-            TextComponent pages = new TextComponent(" " + pager.getCurrentPage());
-            pages.setColor(ChatColor.GRAY);
-            message.addExtra(pages);
-            pages = new TextComponent("/");
-            pages.setColor(ChatColor.GRAY);
-            message.addExtra(pages);
-            pages = new TextComponent(pager.getMaxPage() + " ");
-            pages.setColor(ChatColor.GRAY);
-            message.addExtra(pages);
-
-            TextComponent nextPage = new TextComponent("[-->]");
-            nextPage.setColor(pager.getCurrentPage() < pager.getMaxPage() ? ChatColor.YELLOW : ChatColor.DARK_GRAY);
-            nextPage.setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, new ComponentBuilder(
-                    "§7Aller à la page suivante"
-            ).create()));
-            if (pager.getCurrentPage() < pager.getMaxPage()) {
-                nextPage.setClickEvent(new ClickEvent(ClickEvent.Action.RUN_COMMAND, "/chestevent :" + (pager.getCurrentPage() + 1)));
-            }
-            message.addExtra(nextPage);
-
+            // send messages
             sender.sendMessage("\n");
             ((Player) sender).spigot().sendMessage(message);
-
             pager.getPage(pager.getCurrentPage()).forEach(msg -> ((Player) sender).spigot().sendMessage(msg));
         } catch (NumberFormatException e) {
             sender.sendMessage(ChestEvent.ERROR + "Cette page n'existe pas.");
@@ -209,6 +200,8 @@ public class CmdChestEvent implements CommandExecutor {
     private void viewContent(CommandSender sender, String event) {
         Bukkit.getScheduler().runTaskAsynchronously(plugin, () -> {
             Model model = Model.fromName(plugin, event);
+
+            // return an error if the model is not valid
             if (model == null) {
                 sender.sendMessage(ChestEvent.PREFIX + "La configuration du modèle n'est pas valide.");
                 return;
@@ -216,73 +209,58 @@ public class CmdChestEvent implements CommandExecutor {
 
             List<ItemStack> items = model.getContent();
             List<TextComponent> messages = new ArrayList<>();
-            int num = 1;
             for (ItemStack itemStack : items) {
                 ItemMeta meta = itemStack.getItemMeta();
-                int count = 0;
-                TextComponent component = new TextComponent("§7" + num + " §8- §b" + itemStack.getType() + " x" + itemStack.getAmount() + "§8, §7" + itemStack.getItemMeta().getDisplayName());
+
+                // add item type + item amount + display name
+                TextComponent component = new TextComponent("§8- §b" + itemStack.getType() + " x" + itemStack.getAmount() + "§8, §7" + itemStack.getItemMeta().getDisplayName());
+
+                // add lore
                 String lore = "";
-                if (itemStack.getItemMeta().getLore() != null)
-                    lore = itemStack.getItemMeta().getLore().stream().map(desc -> "\n" + desc).collect(Collectors.joining());
-                StringBuilder enchants = new StringBuilder();
-                if (!itemStack.getItemMeta().getEnchants().isEmpty()) {
-                    for (Enchantment enchantment : meta.getEnchants().keySet()) {
-                        enchants.append("\n").append(" §8– §b").append(enchantment.getName()).append(" niv.").append(meta.getEnchants().values().toArray()[count]);
-                        count++;
+                if (meta.getLore() != null) {
+                    lore = meta.getLore().stream()
+                            .map(desc -> "\n" + desc)
+                            .collect(Collectors.joining());
+                }
+
+                // add enchants
+                String enchants = "";
+                Map<Enchantment, Integer> enchantements = meta.getEnchants();
+                if (!enchantements.isEmpty()) {
+                    int index = 0;
+                    for (Enchantment enchantment : enchantements.keySet()) {
+                        enchants = enchants + "\n §8– §b" + enchantment.getName() + " niv." + enchantements.values().toArray()[index];
+                        index++;
                     }
                 }
 
+                // add lore and enchants texts to the hover event
                 component.setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, new ComponentBuilder(
-                        (!lore.isEmpty() ? "§7§lDescription" : "")
-                                + lore
-                                + ((!lore.isEmpty() && !meta.getEnchants().isEmpty()) ? "\n\n" : "")
-                                + (!meta.getEnchants().isEmpty() ? "§7§lEnchantements" : "")
-                                + enchants.toString()
+                        (!lore.isEmpty() ? "§7§lDescription" + lore : "")
+                                + (!lore.isEmpty() && !enchantements.isEmpty() ? "\n \n" : "")
+                                + (!enchantements.isEmpty() ? "§7§lEnchantements" + enchants : "")
                 ).create()));
+
                 messages.add(component);
-                num++;
             }
 
             Pager pager = new Pager(event, messages);
-            if (sender instanceof Player)
+            // put the pager in cache if the command sender is a player
+            if (sender instanceof Player) {
                 plugin.getPagers().put(((Player) sender).getUniqueId(), pager);
-
-            TextComponent message = new TextComponent(ChestEvent.PREFIX + "Contenu de l'événement §a" + event);
-            message.setColor(ChatColor.GRAY);
-            message.addExtra("§7: ");
-
-            if (items.size() > 15 && sender instanceof Player) {
-                TextComponent previewPage = new TextComponent("[<--]");
-                previewPage.setColor(pager.getCurrentPage() > 1 ? ChatColor.YELLOW : ChatColor.DARK_GRAY);
-                previewPage.setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, new ComponentBuilder(
-                        "§7Aller à la page précédente"
-                ).create()));
-                if (pager.getCurrentPage() > 1)
-                    previewPage.setClickEvent(new ClickEvent(ClickEvent.Action.RUN_COMMAND, "/chestevent :" + (pager.getCurrentPage() - 1)));
-                message.addExtra(previewPage);
-
-                TextComponent pages = new TextComponent(" " + pager.getCurrentPage());
-                pages.setColor(ChatColor.GRAY);
-                message.addExtra(pages);
-                pages = new TextComponent("/");
-                pages.setColor(ChatColor.GRAY);
-                message.addExtra(pages);
-                pages = new TextComponent(pager.getMaxPage() + " ");
-                pages.setColor(ChatColor.GRAY);
-                message.addExtra(pages);
-
-                TextComponent nextPage = new TextComponent("[-->]");
-                nextPage.setColor(pager.getCurrentPage() < pager.getMaxPage() ? ChatColor.YELLOW : ChatColor.DARK_GRAY);
-                nextPage.setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, new ComponentBuilder(
-                        "§7Aller à la page suivante"
-                ).create()));
-                if (pager.getCurrentPage() < pager.getMaxPage())
-                    nextPage.setClickEvent(new ClickEvent(ClickEvent.Action.RUN_COMMAND, "/chestevent :" + (pager.getCurrentPage() + 1)));
-                message.addExtra(nextPage);
             }
 
-            sender.sendMessage("\n");
+            // add the first line with prefix + event name
+            TextComponent message = new TextComponent(ChestEvent.PREFIX + "Contenu de l'événement §a" + event + ":");
+            message.setColor(ChatColor.GRAY);
 
+            // add page selector if there is more than 15 items
+            if (items.size() > 15 && sender instanceof Player) {
+                message.addExtra(getPageSelector(pager));
+            }
+
+            // send messages
+            sender.sendMessage("\n");
             if (sender instanceof Player) {
                 Player player = (Player) sender;
                 player.spigot().sendMessage(message);
@@ -292,5 +270,47 @@ public class CmdChestEvent implements CommandExecutor {
                 messages.stream().map(b -> b.toLegacyText()).forEach(sender::sendMessage);
             }
         });
+    }
+
+    private TextComponent getPageSelector(Pager pager) {
+        TextComponent message = new TextComponent("");
+        // add previous page text
+        TextComponent previousPage = new TextComponent("[<--]");
+        previousPage.setColor(pager.getCurrentPage() > 1 ? ChatColor.YELLOW : ChatColor.DARK_GRAY);
+        previousPage.setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, new ComponentBuilder(
+                "§7Aller à la page précédente"
+        ).create()));
+
+        // add click event to go to previous page if there is a page before
+        if (pager.getCurrentPage() > 1) {
+            previousPage.setClickEvent(new ClickEvent(
+                    ClickEvent.Action.RUN_COMMAND,
+                    "/chestevent :" + (pager.getCurrentPage() - 1)
+            ));
+        }
+        message.addExtra(previousPage);
+
+        // add current / total pages
+        TextComponent pages = new TextComponent(" " + pager.getCurrentPage() + "/" + pager.getMaxPage() + " ");
+        pages.setColor(ChatColor.GRAY);
+        message.addExtra(pages);
+
+        // add next page text
+        TextComponent nextPage = new TextComponent("[-->]");
+        nextPage.setColor(pager.getCurrentPage() < pager.getMaxPage() ? ChatColor.YELLOW : ChatColor.DARK_GRAY);
+        nextPage.setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, new ComponentBuilder(
+                "§7Aller à la page suivante"
+        ).create()));
+
+        // add click event to run next page commande if there is a page after
+        if (pager.getCurrentPage() < pager.getMaxPage()) {
+            nextPage.setClickEvent(new ClickEvent(
+                    ClickEvent.Action.RUN_COMMAND,
+                    "/chestevent :" + (pager.getCurrentPage() + 1)
+            ));
+        }
+        message.addExtra(nextPage);
+
+        return message;
     }
 }

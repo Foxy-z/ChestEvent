@@ -10,6 +10,7 @@ import fr.onecraft.chestevent.tabCompleter.CompleterChestEvent;
 import org.bukkit.Bukkit;
 import org.bukkit.command.PluginCommand;
 import org.bukkit.configuration.Configuration;
+import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.plugin.PluginManager;
 import org.bukkit.plugin.java.JavaPlugin;
 
@@ -48,13 +49,14 @@ public class ChestEvent extends JavaPlugin {
 
     private void generateFiles() {
         Configuration configuration = Configs.get(this, "", "data");
-        if (configuration.get("id") == null) {
+        if (configuration == null) {
+            configuration = new YamlConfiguration();
             configuration.set("id", 0);
             Configs.save(this, configuration, "", "data");
         }
 
         File file = new File(this.getDataFolder() + "/Models");
-        if (!file.exists()) file.mkdir();
+        if (!file.exists()) file.mkdirs();
     }
 
     private void removeOldFiles() {
@@ -62,15 +64,16 @@ public class ChestEvent extends JavaPlugin {
         if (files == null) return;
         // for all files in the "chest" folder
         Arrays.stream(files).filter(file -> {
+
             // if it is a yml file
             if (file.getName().endsWith(".yml")) {
-                Configuration configuration = Configs.get(this, "Chests", file.getName().replace(".yml", ""));
+                Configuration configuration = Configs.get(this, "Chests", file.getName());
+                if (configuration == null) return false;
                 long expireDate = configuration.getLong("expire-date");
-                // return if file has expired
+                // delete the file if it has expired
                 return System.currentTimeMillis() > expireDate;
             }
             return false;
-            // delete file if has expired
         }).forEach(File::delete);
     }
 

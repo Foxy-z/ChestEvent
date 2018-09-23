@@ -88,17 +88,17 @@ public class Model {
 
             // get item amount
             int amount = slot.getInt("amount");
-            if (amount <= 0) {
+            if (amount < 1) {
                 amount = 1;
             }
 
             // get metadata
             short metadata = 0;
-            // if metadata is set in config
             if (slot.getString("type").split(":").length > 1) {
                 metadata = Short.parseShort(slot.getString("type").split(":")[1]);
             }
 
+            // create item stack and set item meta
             ItemStack itemStack = new ItemStack(type, amount, metadata);
             ItemMeta meta = itemStack.getItemMeta();
 
@@ -139,12 +139,15 @@ public class Model {
             File path = new File(plugin.getDataFolder() + "/Models");
             if (!path.exists()) return;
             MODEL_LIST.clear();
+
             // for all finded files
             for (File file : path.listFiles()) {
+
                 // if it is a yml file
                 if (file.getName().endsWith(".yml")) {
                     String fileName = file.getName().replace(".yml", "");
                     Model model = fromName(plugin, fileName);
+
                     // if file is valid add its name to cache
                     if (model != null && isValidName(fileName)) {
                         MODEL_LIST.add(fromName(plugin, fileName));

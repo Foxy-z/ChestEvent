@@ -16,6 +16,9 @@ public class Configs {
     public static Configuration get(JavaPlugin plugin, String folder, String filename) {
         try {
             YamlConfiguration configuration = new YamlConfiguration();
+            if (!filename.endsWith(".yml")) {
+                filename = filename + ".yml";
+            }
             File file = new File(plugin.getDataFolder() + (folder.isEmpty() ? "" : "/") + folder, filename + ".yml");
             FileInputStream fileinputstream = new FileInputStream(file);
             configuration.load(new InputStreamReader(fileinputstream, Charset.forName("UTF-8")));
@@ -28,7 +31,7 @@ public class Configs {
     public static Configuration get(JavaPlugin plugin, String folder, int filename) {
         try {
             YamlConfiguration configuration = new YamlConfiguration();
-            File file = new File(plugin.getDataFolder() + (folder.isEmpty() ? "" : "/") + folder, String.valueOf(filename) + ".yml");
+            File file = new File(plugin.getDataFolder() + (folder.isEmpty() ? "" : "/") + folder, filename + ".yml");
             FileInputStream fileinputstream = new FileInputStream(file);
             configuration.load(new InputStreamReader(fileinputstream, Charset.forName("UTF-8")));
             return configuration;
@@ -37,14 +40,17 @@ public class Configs {
         }
     }
 
-    public static boolean save(JavaPlugin plugin, Configuration config, String folder, String configName) {
+    public static boolean save(JavaPlugin plugin, Configuration config, String folder, String filename) {
         try {
             YamlConfiguration configuration = new YamlConfiguration();
             Set<String> keys = config.getKeys(false);
             for (String key : keys) {
                 configuration.set(key, config.get(key));
             }
-            configuration.save(new File(plugin.getDataFolder() + (folder.isEmpty() ? "" : "/") + folder, configName + ".yml"));
+            if (!filename.endsWith(".yml")) {
+                filename = filename + ".yml";
+            }
+            configuration.save(new File(plugin.getDataFolder() + (folder.isEmpty() ? "" : "/") + folder, filename + ".yml"));
             return true;
         } catch (IOException e) {
             e.printStackTrace();
