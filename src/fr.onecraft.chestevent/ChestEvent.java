@@ -39,12 +39,12 @@ public class ChestEvent extends JavaPlugin {
         generateFiles();
         removeOldFiles();
         Model.loadEventList(this);
-        getLogger().info(this.getDescription().getName() + " has been enabled.");
+        getLogger().info(this.getName() + " has been enabled.");
     }
 
     @Override
     public void onDisable() {
-        getLogger().info(this.getDescription().getName() + " has been disabled.");
+        getLogger().info(this.getName() + " has been disabled.");
     }
 
     private void generateFiles() {
