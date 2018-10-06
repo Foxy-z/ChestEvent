@@ -24,7 +24,7 @@ public class Model {
 
     public static Model fromName(ChestEvent plugin, String name) {
         Configuration configuration = Configs.get(plugin, "Models", name);
-        if (!(configuration == null)) {
+        if (configuration != null) {
             return new Model(plugin, configuration, name);
         } else {
             return null;
