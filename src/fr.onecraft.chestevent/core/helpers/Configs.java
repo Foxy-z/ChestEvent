@@ -47,9 +47,6 @@ public class Configs {
             for (String key : keys) {
                 configuration.set(key, config.get(key));
             }
-            if (!filename.endsWith(".yml")) {
-                filename = filename + ".yml";
-            }
             configuration.save(new File(plugin.getDataFolder() + (folder.isEmpty() ? "" : "/") + folder, filename + ".yml"));
             return true;
         } catch (IOException e) {
