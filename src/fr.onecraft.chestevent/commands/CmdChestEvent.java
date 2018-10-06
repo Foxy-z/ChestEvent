@@ -71,8 +71,9 @@ public class CmdChestEvent implements CommandExecutor {
         sender.sendMessage(ChestEvent.PREFIX + "Gère les récompenses d'événements"
                 + (sender.hasPermission("chestevent.info") ? "\n§b/chestevent info <event>§7 informations sur un événement" : "")
                 + (sender.hasPermission("chestevent.viewcontent") ? "\n§b/chestevent viewcontent <event>§7 contenu d'un événement" : "")
-                + (sender.hasPermission("chestevent.list") ? "\n§b/chestevent list §7 liste des événements" : "")
-                + (sender.hasPermission("chestevent.give") ? "\n§b/chestevent give <event> [pseudo]§7 give un coffre d'événement" : ""));
+                + (sender.hasPermission("chestevent.list") ? "\n§b/chestevent list §7liste des événements" : "")
+                + (sender.hasPermission("chestevent.give") ? "\n§b/chestevent give <event> [pseudo]§7 give un coffre d'événement" : "")
+                + (sender.hasPermission("chestevent.reload") ? "\n§b/compensation reload §7met à jour les événements" : ""));
     }
 
     private void showEventList(CommandSender sender) {
