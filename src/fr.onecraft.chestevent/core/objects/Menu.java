@@ -25,7 +25,7 @@ public class Menu implements InventoryHolder {
     private List<ItemStack> items;
 
     public static Material PAGE_BUTTON = Material.REDSTONE;
-    public static Material SEPARATION_BUTTON = Material.REDSTONE;
+    public static Material SEPARATION_BUTTON = Material.DOUBLE_PLANT;
 
     Menu(ChestEvent plugin, int id, List<ItemStack> items) {
         this.plugin = plugin;
@@ -43,7 +43,7 @@ public class Menu implements InventoryHolder {
             if (size > 54) {
                 // if the item is on the requested page
                 if (count >= (page - 1) * 45 && count < page * 45) {
-                    result.setItem(count, item);
+                    result.setItem(count - (page - 1) * 45, item);
                 }
 
                 result.setItem(51, getNextButton());

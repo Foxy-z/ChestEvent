@@ -38,6 +38,7 @@ public class ChestListener implements Listener {
 
         Player player = event.getPlayer();
         ItemStack item = player.getItemInHand();
+
         // if clicked item is a chest
         if (item == null || !item.getType().equals(Material.CHEST)) {
             return;
@@ -66,10 +67,9 @@ public class ChestListener implements Listener {
 
         Chest chest = Chest.fromId(plugin, id);
 
-        // delete the chest if he is null
+        // delete the chest if it is null
         if (chest == null) {
             player.getInventory().setItemInHand(new ItemStack(Material.AIR));
-            chest.delete();
             player.sendMessage(ChestEvent.ERROR + "Ce coffre n'existe plus.");
             return;
         }
@@ -91,15 +91,22 @@ public class ChestListener implements Listener {
         if (!(event.getInventory().getHolder() instanceof Menu)) {
             return;
         }
+
+        event.setCancelled(true);
         Player player = (Player) event.getWhoClicked();
         Inventory inventory = event.getClickedInventory();
         if (inventory == null) {
             return;
         }
 
+        // cancel if the clicked inventory is not the top inventory
+        if (!event.getClickedInventory().equals(player.getOpenInventory().getTopInventory())) {
+            return;
+        }
+
         Menu menu = (Menu) inventory.getHolder();
-        event.setCancelled(true);
         ItemStack clickedItem = event.getCurrentItem();
+
         // check if clicked item is null or is air
         if (clickedItem == null || clickedItem.getType().equals(Material.AIR)) {
             return;
@@ -113,17 +120,12 @@ public class ChestListener implements Listener {
                     menu.setCurrentPage(menu.getCurrentPage() + 1);
                     player.openInventory(menu.getPage(menu.getCurrentPage()));
                 }
-                event.setCancelled(true);
                 // if clicked button is previous page button
             } else if (clickedItem.equals(inventory.getItem(47))) {
                 if (menu.getCurrentPage() > 1) {
                     menu.setCurrentPage(menu.getCurrentPage() - 1);
                     player.openInventory(menu.getPage(menu.getCurrentPage()));
                 }
-                event.setCancelled(true);
-                // if clicked button is middle button (useless)
-            } else if (clickedItem.equals(inventory.getItem(49))) {
-                event.setCancelled(true);
             }
             return;
         }
