@@ -16,7 +16,7 @@ public class Configs {
     public static Configuration get(JavaPlugin plugin, String folder, String filename) {
         try {
             YamlConfiguration configuration = new YamlConfiguration();
-            File file = new File(plugin.getDataFolder() + (folder.isEmpty() ? "" : "/") + folder, filename + ".yml");
+            File file = new File(plugin.getDataFolder() + (folder.isEmpty() ? "" : "/") + folder, filename + (filename.endsWith(".yml") ? "" : ".yml"));
             FileInputStream fileinputstream = new FileInputStream(file);
             configuration.load(new InputStreamReader(fileinputstream, Charset.forName("UTF-8")));
             return configuration;
