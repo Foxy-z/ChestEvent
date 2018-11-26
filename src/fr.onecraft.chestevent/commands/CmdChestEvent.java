@@ -134,16 +134,16 @@ public class CmdChestEvent implements CommandExecutor {
         // if there is a specified player to get the chest or else give it to the command sender
         if (args.length > 2) {
             Player target = Bukkit.getPlayer(args[2]);
-            // give the chest if the player is online or else return an error
+            // give the chest if the target is online or else return an error
 
             if (target != null) {
-                // return an error if the player's inventory is full
+                // return an error if the target's inventory is full
                 if (target.getInventory().firstEmpty() == -1) {
                     sender.sendMessage(ChestEvent.ERROR + "Impossible de donner le coffre, l'inventaire de §a" + target.getName() + " §7est plein.");
                     return;
                 }
 
-                sender.sendMessage(ChestEvent.PREFIX + "§a" + sender.getName() + " §7a reçu le coffre de l'événement §a" + event + "§7.");
+                sender.sendMessage(ChestEvent.PREFIX + "§a" + target.getName() + " §7a reçu le coffre de l'événement §a" + event + "§7.");
                 target.getInventory().addItem(chest.getChestItem());
             } else {
                 sender.sendMessage(ChestEvent.ERROR + "§a" + args[2] + " §7est introuvable.");
