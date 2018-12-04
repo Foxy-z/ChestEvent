@@ -87,12 +87,12 @@ public class ChestListener implements Listener {
      */
     @EventHandler
     public void on(InventoryClickEvent event) {
-        // if this is not an inventory from the plugin
+        // cancel if this is not an inventory from the plugin
         if (!(event.getInventory().getHolder() instanceof Menu)) {
             return;
         }
-
         event.setCancelled(true);
+
         Player player = (Player) event.getWhoClicked();
         Inventory inventory = event.getClickedInventory();
         if (inventory == null) {
@@ -107,21 +107,22 @@ public class ChestListener implements Listener {
         Menu menu = (Menu) inventory.getHolder();
         ItemStack clickedItem = event.getCurrentItem();
 
-        // check if clicked item is null or is air
+        // cancel if clicked item is null or is air
         if (clickedItem == null || clickedItem.getType().equals(Material.AIR)) {
             return;
         }
 
+        int clickedSlot = event.getRawSlot();
         // if clicked item is a button
         if (clickedItem.getType().equals(Menu.PAGE_BUTTON) || clickedItem.getType().equals(Menu.SEPARATION_BUTTON)) {
             // if clicked button is next page button
-            if (clickedItem.equals(inventory.getItem(51))) {
+            if (clickedSlot == 51) {
                 if (menu.getCurrentPage() < Math.ceil((double) menu.getSize() / 45)) {
                     menu.setCurrentPage(menu.getCurrentPage() + 1);
                     player.openInventory(menu.getPage(menu.getCurrentPage()));
                 }
                 // if clicked button is previous page button
-            } else if (clickedItem.equals(inventory.getItem(47))) {
+            } else if (clickedSlot == 47) {
                 if (menu.getCurrentPage() > 1) {
                     menu.setCurrentPage(menu.getCurrentPage() - 1);
                     player.openInventory(menu.getPage(menu.getCurrentPage()));

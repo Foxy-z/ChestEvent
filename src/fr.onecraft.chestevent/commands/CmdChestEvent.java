@@ -35,13 +35,13 @@ public class CmdChestEvent implements CommandExecutor {
         }
 
         String action = args[0].toLowerCase();
-        if (!sender.hasPermission("chestevent." + action)) {
-            sender.sendMessage(ChestEvent.ERROR + "Tu n'as pas la permission.");
-        } else if (action.startsWith(":") && (sender instanceof Player)) {
+        if (action.startsWith(":") && (sender instanceof Player)) {
             showPage(sender, action);
-        } else if (action.equalsIgnoreCase("list")) {
+        } else if (!sender.hasPermission("chestevent." + action)) {
+            sender.sendMessage(ChestEvent.ERROR + "Tu n'as pas la permission.");
+        } else if (action.equals("list")) {
             showEventList(sender);
-        } else if (action.equalsIgnoreCase("reload")) {
+        } else if (action.equals("reload")) {
             reloadCache(sender);
         } else if (args.length < 2) {
             showHelp(sender);
@@ -49,11 +49,11 @@ public class CmdChestEvent implements CommandExecutor {
             String event = args[1];
             if (!Model.eventExists(event, plugin)) {
                 sender.sendMessage(ChestEvent.ERROR + "Cet événement n'existe pas.");
-            } else if (action.equalsIgnoreCase("viewcontent")) {
+            } else if (action.equals("viewcontent")) {
                 viewContent(sender, event);
-            } else if (action.equalsIgnoreCase("info")) {
+            } else if (action.equals("info")) {
                 info(sender, event);
-            } else if (action.equalsIgnoreCase("give")) {
+            } else if (action.equals("give")) {
                 give(sender, event, args);
             } else {
                 showHelp(sender);

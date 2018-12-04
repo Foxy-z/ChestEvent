@@ -64,14 +64,17 @@ public class Model {
 
     public Chest createChest() {
         Configuration chestConfig = Configs.get(plugin, "Models", eventName);
+        if (chestConfig == null) return null;
         chestConfig.set("expire-date", System.currentTimeMillis() + 345600000);
         int id = getAndIncrementId();
+        if (id == -1) return null;
         Configs.save(plugin, chestConfig, "Chests", id);
         return Chest.fromId(plugin, id);
     }
 
     private int getAndIncrementId() {
         Configuration data = Configs.get(plugin, "", "data");
+        if (data == null) return -1;
         data.set("id", data.getInt("id") + 1);
         Configs.save(plugin, data, "", "data");
         return data.getInt("id");
@@ -138,8 +141,8 @@ public class Model {
         Bukkit.getScheduler().runTaskAsynchronously(plugin, () -> {
             File path = new File(plugin.getDataFolder() + "/Models");
             if (!path.exists()) return;
-            MODEL_LIST.clear();
 
+            List<Model> newModels = new ArrayList<>();
             // for all finded files
             for (File file : path.listFiles()) {
 
@@ -148,12 +151,15 @@ public class Model {
                     String fileName = file.getName().replace(".yml", "");
                     Model model = fromName(plugin, fileName);
 
-                    // if file is valid add its name to cache
+                    // if file is valid add its name to the new list
                     if (model != null && isValidName(fileName)) {
-                        MODEL_LIST.add(fromName(plugin, fileName));
+                        newModels.add(fromName(plugin, fileName));
                     }
                 }
             }
+
+            MODEL_LIST.clear();
+            MODEL_LIST.addAll(newModels);
         });
     }
 
