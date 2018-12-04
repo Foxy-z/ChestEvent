@@ -18,14 +18,17 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 public class Menu implements InventoryHolder {
+    public static final int ITEM_ROWS = 5;
+    public static final int ITEMS_PER_PAGE = ITEM_ROWS * 9;
+
+    private static final Material PAGE_BUTTON = Material.REDSTONE;
+    private static final Material SEPARATION_BUTTON = Material.DOUBLE_PLANT;
+
     private ChestEvent plugin;
     private int id;
     private int size;
     private int currentPage;
     private List<ItemStack> items;
-
-    public static Material PAGE_BUTTON = Material.REDSTONE;
-    public static Material SEPARATION_BUTTON = Material.DOUBLE_PLANT;
 
     Menu(ChestEvent plugin, int id, List<ItemStack> items) {
         this.plugin = plugin;
@@ -36,22 +39,17 @@ public class Menu implements InventoryHolder {
     }
 
     public Inventory getPage(int page) {
-        Inventory result = Bukkit.createInventory(this, 54, "§6§lCoffre d'événement §f§ln°" + id);
+        Inventory result = Bukkit.createInventory(this, (ITEM_ROWS + 1) * 9, "§6§lCoffre d'événement §f§ln°" + id);
         int count = 0;
         for (ItemStack item : items) {
-            // if there is more than one page
-            if (size > 54) {
-                // if the item is on the requested page
-                if (count >= (page - 1) * 45 && count < page * 45) {
-                    result.setItem(count - (page - 1) * 45, item);
-                }
-
-                result.setItem(51, getNextButton());
-                result.setItem(49, getPageButton(page));
-                result.setItem(47, getPreviewButton());
-            } else {
-                result.setItem(count, item);
+            // if the item is on the requested page
+            if (count >= (page - 1) * ITEMS_PER_PAGE && count < page * ITEMS_PER_PAGE) {
+                result.setItem(count - (page - 1) * ITEMS_PER_PAGE, item);
             }
+
+            result.setItem(Menu.ITEMS_PER_PAGE + 1, getNextButton());
+            result.setItem(Menu.ITEMS_PER_PAGE + 5, getPageButton(page));
+            result.setItem(Menu.ITEMS_PER_PAGE + 9, getPreviewButton());
             count++;
         }
 
