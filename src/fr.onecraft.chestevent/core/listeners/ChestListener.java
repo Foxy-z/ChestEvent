@@ -46,7 +46,7 @@ public class ChestListener implements Listener {
         ItemMeta meta = item.getItemMeta();
 
         // check if the chest's name is right
-        if (meta.getDisplayName() == null || !meta.getDisplayName().equals(Chest.chestName)) {
+        if (meta.getDisplayName() == null || !meta.getDisplayName().equals(Chest.CHEST_NAME)) {
             return;
         }
 

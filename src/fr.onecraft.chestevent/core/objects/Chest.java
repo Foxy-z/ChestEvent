@@ -15,11 +15,12 @@ import java.util.Arrays;
 import java.util.List;
 
 public class Chest {
+    public final static String CHEST_NAME = "§6§lCoffre d'événement";
+
     private ChestEvent plugin;
     private int id;
     private String name;
     private List<ItemStack> itemList;
-    public static String chestName = "§6§lCoffre d'événement";
 
     public static Chest fromId(ChestEvent plugin, int id) {
         Configuration configuration = Configs.get(plugin, "Chests", id);
@@ -52,7 +53,7 @@ public class Chest {
     public ItemStack getChestItem() {
         ItemStack itemStack = new ItemStack(Material.CHEST);
         ItemMeta itemMeta = itemStack.getItemMeta();
-        itemMeta.setDisplayName(chestName);
+        itemMeta.setDisplayName(CHEST_NAME);
         itemMeta.setLore(Arrays.asList("§7Événement: §6" + name, "§7Contenu: §6#" + id));
         itemMeta.addItemFlags(ItemFlag.HIDE_ENCHANTS);
         itemMeta.addEnchant(Enchantment.OXYGEN, 1, true);
