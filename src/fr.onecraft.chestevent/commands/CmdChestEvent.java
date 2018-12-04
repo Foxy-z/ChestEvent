@@ -148,7 +148,6 @@ public class CmdChestEvent implements CommandExecutor {
             // give the chest to the sender if it is a player
             if (sender instanceof Player) {
                 Player player = (Player) sender;
-
                 // return an error if the player's inventory is full
                 if (player.getInventory().firstEmpty() == -1) {
                     sender.sendMessage(ChestEvent.ERROR + "Impossible de vous donner le coffre, votre inventaire est plein.");
@@ -171,6 +170,7 @@ public class CmdChestEvent implements CommandExecutor {
 
             // get pager from cache
             Pager pager = plugin.getPagers().get(((Player) sender).getUniqueId());
+
             // return an error if the page doesn't exists
             if (pager.getMaxPage() < page || page < 1) {
                 sender.sendMessage(ChestEvent.ERROR + "Cette page n'existe pas.");

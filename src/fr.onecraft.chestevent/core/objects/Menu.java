@@ -143,7 +143,7 @@ public class Menu implements InventoryHolder {
      * Génération des boutons du menu
      */
 
-    private static ItemStack getNextButton() {
+    private ItemStack getNextButton() {
         ItemStack itemStack = new ItemStack(PAGE_BUTTON);
         ItemMeta meta = itemStack.getItemMeta();
         meta.setDisplayName("§6§l >>> Page suivante >>> ");
@@ -151,7 +151,7 @@ public class Menu implements InventoryHolder {
         return itemStack;
     }
 
-    private static ItemStack getPreviewButton() {
+    private ItemStack getPreviewButton() {
         ItemStack itemStack = new ItemStack(PAGE_BUTTON);
         ItemMeta meta = itemStack.getItemMeta();
         meta.setDisplayName("§6§l <<< Page précédente <<< ");
@@ -159,7 +159,7 @@ public class Menu implements InventoryHolder {
         return itemStack;
     }
 
-    private static ItemStack getPageButton(int page) {
+    private ItemStack getPageButton(int page) {
         ItemStack itemStack = new ItemStack(SEPARATION_BUTTON, 1);
         ItemMeta meta = itemStack.getItemMeta();
         meta.setDisplayName("§6§l <<< Page " + page + " >>> ");
