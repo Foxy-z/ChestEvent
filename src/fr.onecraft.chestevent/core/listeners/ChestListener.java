@@ -38,13 +38,12 @@ public class ChestListener implements Listener {
 
         Player player = event.getPlayer();
         ItemStack item = player.getItemInHand();
-
         // if clicked item is a chest
         if (item == null || item.getType() != Material.CHEST) {
             return;
         }
-        ItemMeta meta = item.getItemMeta();
 
+        ItemMeta meta = item.getItemMeta();
         // check if the chest's name is right
         if (meta.getDisplayName() == null || !meta.getDisplayName().equals(Chest.CHEST_NAME)) {
             return;
@@ -66,7 +65,6 @@ public class ChestListener implements Listener {
         }
 
         Chest chest = Chest.fromId(plugin, id);
-
         // delete the chest if it is null
         if (chest == null) {
             player.getInventory().setItemInHand(new ItemStack(Material.AIR));
@@ -106,7 +104,6 @@ public class ChestListener implements Listener {
 
         Menu menu = (Menu) inventory.getHolder();
         ItemStack clickedItem = event.getCurrentItem();
-
         // cancel if clicked item is null or is air
         if (clickedItem == null || clickedItem.getType() == Material.AIR) {
             return;

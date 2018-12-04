@@ -24,7 +24,7 @@ public class Chest {
 
     public static Chest fromId(ChestEvent plugin, int id) {
         Configuration configuration = Configs.get(plugin, "Chests", id);
-        if (!(configuration == null)) {
+        if (configuration != null) {
             return new Chest(plugin, configuration, id);
         } else {
             return null;
@@ -59,11 +59,6 @@ public class Chest {
         itemMeta.addEnchant(Enchantment.OXYGEN, 1, true);
         itemStack.setItemMeta(itemMeta);
         return itemStack;
-    }
-
-    public void delete() {
-        File file = new File(plugin.getDataFolder() + "/Chests", id + ".yml");
-        file.delete();
     }
 
     public Menu getMenu() {

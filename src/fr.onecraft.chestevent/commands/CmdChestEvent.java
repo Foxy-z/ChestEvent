@@ -79,14 +79,13 @@ public class CmdChestEvent implements CommandExecutor {
     private void showEventList(CommandSender sender) {
         Bukkit.getScheduler().runTaskAsynchronously(plugin, () -> {
             List<Model> models = Model.getEventList();
-
             // return an error if there is not any event
             if (models.isEmpty()) {
                 sender.sendMessage(ChestEvent.PREFIX + "Il n'y a aucun événement.");
                 return;
             }
 
-            sender.sendMessage(ChestEvent.PREFIX + "Liste des événements");
+            sender.sendMessage(ChestEvent.PREFIX + "Liste des événements:");
             models.stream().map(model -> " §7– §b" + model.getName()).forEach(sender::sendMessage);
         });
     }
@@ -101,7 +100,7 @@ public class CmdChestEvent implements CommandExecutor {
                 return;
             }
 
-            sender.sendMessage(ChestEvent.PREFIX + "Informations sur l'événement §a" + event + "\n"
+            sender.sendMessage(ChestEvent.PREFIX + "Informations sur l'événement §a" + event + "§7: \n"
                     + " §8- §7Description: §b" + model.getDescription() + "\n"
                     + " §8- §7Permission: §b" + model.getPermission() + "\n"
             );
@@ -198,7 +197,6 @@ public class CmdChestEvent implements CommandExecutor {
     private void viewContent(CommandSender sender, String event) {
         Bukkit.getScheduler().runTaskAsynchronously(plugin, () -> {
             Model model = Model.fromName(plugin, event);
-
             // return an error if the model is not valid
             if (model == null) {
                 sender.sendMessage(ChestEvent.PREFIX + "La configuration du modèle n'est pas valide.");
@@ -238,7 +236,6 @@ public class CmdChestEvent implements CommandExecutor {
                                 + (!lore.isEmpty() && !enchantements.isEmpty() ? "\n \n" : "")
                                 + (!enchantements.isEmpty() ? "§7§lEnchantements" + enchants : "")
                 ).create()));
-
                 messages.add(component);
             }
 
