@@ -112,15 +112,15 @@ public class ChestListener implements Listener {
         int clickedSlot = event.getSlot();
 
         // if there is pages
-        if (clickedSlot > Menu.ITEMS_PER_PAGE) {
+        if (clickedSlot >= Menu.ITEMS_PER_PAGE) {
             // if clicked button is previous page button
-            if (clickedSlot == Menu.ITEMS_PER_PAGE + 1) {
+            if (clickedSlot == Menu.ITEMS_PER_PAGE) {
                 if (menu.getCurrentPage() > 1) {
                     menu.setCurrentPage(menu.getCurrentPage() - 1);
                     player.openInventory(menu.getPage(menu.getCurrentPage()));
                 }
                 // if clicked button is next page button
-            } else if (clickedSlot == Menu.ITEMS_PER_PAGE + 9) {
+            } else if (clickedSlot == Menu.ITEMS_PER_PAGE + 8) {
                 if (menu.getCurrentPage() < Math.ceil((double) menu.getSize() / Menu.ITEMS_PER_PAGE)) {
                     menu.setCurrentPage(menu.getCurrentPage() + 1);
                     player.openInventory(menu.getPage(menu.getCurrentPage()));

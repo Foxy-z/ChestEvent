@@ -47,9 +47,9 @@ public class Menu implements InventoryHolder {
                 result.setItem(count - (page - 1) * ITEMS_PER_PAGE, item);
             }
 
-            result.setItem(Menu.ITEMS_PER_PAGE + 1, getNextButton());
-            result.setItem(Menu.ITEMS_PER_PAGE + 5, getPageButton(page));
-            result.setItem(Menu.ITEMS_PER_PAGE + 9, getPreviewButton());
+            result.setItem(Menu.ITEMS_PER_PAGE, getNextButton());
+            result.setItem(Menu.ITEMS_PER_PAGE + 4, getPageButton(page));
+            result.setItem(Menu.ITEMS_PER_PAGE + 8, getPreviewButton());
             count++;
         }
 
