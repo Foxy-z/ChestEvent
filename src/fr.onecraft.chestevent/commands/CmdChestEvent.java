@@ -116,7 +116,6 @@ public class CmdChestEvent implements CommandExecutor {
         }
 
         Model model = Model.fromName(plugin, event);
-
         // return an error if the model's configuration is not valid
         if (model == null) {
             sender.sendMessage(ChestEvent.PREFIX + "La configuration du modèle n'est pas valide.");
@@ -134,7 +133,6 @@ public class CmdChestEvent implements CommandExecutor {
         if (args.length > 2) {
             Player target = Bukkit.getPlayer(args[2]);
             // give the chest if the target is online or else return an error
-
             if (target != null) {
                 // return an error if the target's inventory is full
                 if (target.getInventory().firstEmpty() == -1) {
@@ -174,7 +172,6 @@ public class CmdChestEvent implements CommandExecutor {
 
             // get pager from cache
             Pager pager = plugin.getPagers().get(((Player) sender).getUniqueId());
-
             // return an error if the page doesn't exists
             if (pager.getMaxPage() < page || page < 1) {
                 sender.sendMessage(ChestEvent.ERROR + "Cette page n'existe pas.");

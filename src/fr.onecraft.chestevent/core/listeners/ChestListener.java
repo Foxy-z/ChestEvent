@@ -112,7 +112,7 @@ public class ChestListener implements Listener {
             return;
         }
 
-        int clickedSlot = event.getRawSlot();
+        int clickedSlot = event.getSlot();
         // if clicked item is a button
         if (clickedItem.getType() == Menu.PAGE_BUTTON || clickedItem.getType() == Menu.SEPARATION_BUTTON) {
             // if clicked button is next page button
