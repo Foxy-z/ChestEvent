@@ -131,10 +131,13 @@ public class ChestListener implements Listener {
         // if player's inventory is not full else tell him
         if (player.getInventory().firstEmpty() != -1) {
             // give the item to the player and remove it from the chest
-            menu.getItems().remove(clickedItem);
-            player.getInventory().addItem(clickedItem);
-            inventory.setItem(event.getRawSlot(), new ItemStack(Material.AIR));
-            player.updateInventory();
+            if (menu.getItems().remove(clickedItem)) {
+                player.getInventory().addItem(clickedItem);
+                inventory.setItem(clickedSlot, new ItemStack(Material.AIR));
+                player.updateInventory();
+            } else {
+                player.sendMessage(ChestEvent.ERROR + "Impossible de récupérer cet item.");
+            }
         } else {
             player.sendMessage(ChestEvent.ERROR + "Votre inventaire est plein !");
         }
