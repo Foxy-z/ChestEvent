@@ -32,7 +32,7 @@ public class ChestListener implements Listener {
     public void on(PlayerInteractEvent event) {
         // if it is a right click
         Action action = event.getAction();
-        if (!action.equals(Action.RIGHT_CLICK_BLOCK) && !action.equals(Action.RIGHT_CLICK_AIR)) {
+        if (action != Action.RIGHT_CLICK_BLOCK && action != Action.RIGHT_CLICK_AIR) {
             return;
         }
 
@@ -40,13 +40,13 @@ public class ChestListener implements Listener {
         ItemStack item = player.getItemInHand();
 
         // if clicked item is a chest
-        if (item == null || !item.getType().equals(Material.CHEST)) {
+        if (item == null || item.getType() != Material.CHEST) {
             return;
         }
         ItemMeta meta = item.getItemMeta();
 
         // check if the chest's name is right
-        if (meta.getDisplayName() == null || !meta.getDisplayName().equalsIgnoreCase(Chest.chestName)) {
+        if (meta.getDisplayName() == null || !meta.getDisplayName().equals(Chest.chestName)) {
             return;
         }
 
@@ -108,13 +108,13 @@ public class ChestListener implements Listener {
         ItemStack clickedItem = event.getCurrentItem();
 
         // cancel if clicked item is null or is air
-        if (clickedItem == null || clickedItem.getType().equals(Material.AIR)) {
+        if (clickedItem == null || clickedItem.getType() == Material.AIR) {
             return;
         }
 
         int clickedSlot = event.getRawSlot();
         // if clicked item is a button
-        if (clickedItem.getType().equals(Menu.PAGE_BUTTON) || clickedItem.getType().equals(Menu.SEPARATION_BUTTON)) {
+        if (clickedItem.getType() == Menu.PAGE_BUTTON || clickedItem.getType() == Menu.SEPARATION_BUTTON) {
             // if clicked button is next page button
             if (clickedSlot == 51) {
                 if (menu.getCurrentPage() < Math.ceil((double) menu.getSize() / 45)) {

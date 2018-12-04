@@ -73,7 +73,7 @@ public class CmdChestEvent implements CommandExecutor {
                 + (sender.hasPermission("chestevent.viewcontent") ? "\n§b/chestevent viewcontent <event>§7 contenu d'un événement" : "")
                 + (sender.hasPermission("chestevent.list") ? "\n§b/chestevent list §7liste des événements" : "")
                 + (sender.hasPermission("chestevent.give") ? "\n§b/chestevent give <event> [pseudo]§7 give un coffre d'événement" : "")
-                + (sender.hasPermission("chestevent.reload") ? "\n§b/compensation reload §7met à jour les événements" : ""));
+                + (sender.hasPermission("chestevent.reload") ? "\n§b/chestevent reload §7met à jour les événements" : ""));
     }
 
     private void showEventList(CommandSender sender) {
@@ -124,7 +124,6 @@ public class CmdChestEvent implements CommandExecutor {
         }
 
         Chest chest = model.createChest();
-
         // return an error if the plugin can't create the chest
         if (chest == null) {
             sender.sendMessage(ChestEvent.PREFIX + "Erreur lors de la création du coffre.");
@@ -186,8 +185,9 @@ public class CmdChestEvent implements CommandExecutor {
             pager.setCurrentPage(page);
 
             // add the first line with prefix + event name + page selector
-            TextComponent message = new TextComponent(ChestEvent.PREFIX + "Contenu de l'événement §a" + pager.getEvent() + ":" + getPageSelector(pager));
+            TextComponent message = new TextComponent(ChestEvent.PREFIX + "Contenu de l'événement §a" + pager.getEvent() + "§7: ");
             message.setColor(ChatColor.GRAY);
+            message.addExtra(getPageSelector(pager));
 
             // send messages
             sender.sendMessage("\n");
@@ -214,7 +214,7 @@ public class CmdChestEvent implements CommandExecutor {
                 ItemMeta meta = itemStack.getItemMeta();
 
                 // add item type + item amount + display name
-                TextComponent component = new TextComponent("§8- §b" + itemStack.getType() + " x" + itemStack.getAmount() + "§8, §7" + itemStack.getItemMeta().getDisplayName());
+                TextComponent component = new TextComponent("§8- §b" + itemStack.getType() + " x" + itemStack.getAmount() + " §7" + itemStack.getItemMeta().getDisplayName());
 
                 // add lore
                 String lore = "";
@@ -252,7 +252,7 @@ public class CmdChestEvent implements CommandExecutor {
             }
 
             // add the first line with prefix + event name
-            TextComponent message = new TextComponent(ChestEvent.PREFIX + "Contenu de l'événement §a" + event + ":");
+            TextComponent message = new TextComponent(ChestEvent.PREFIX + "Contenu de l'événement §a" + event + "§7: ");
             message.setColor(ChatColor.GRAY);
 
             // add page selector if there is more than 15 items
@@ -274,7 +274,7 @@ public class CmdChestEvent implements CommandExecutor {
     }
 
     private TextComponent getPageSelector(Pager pager) {
-        TextComponent message = new TextComponent("");
+        TextComponent message = new TextComponent(" ");
         // add previous page text
         TextComponent previousPage = new TextComponent("[<--]");
         previousPage.setColor(pager.getCurrentPage() > 1 ? ChatColor.YELLOW : ChatColor.DARK_GRAY);
