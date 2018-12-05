@@ -21,8 +21,8 @@ import java.util.Map;
 import java.util.UUID;
 
 public class ChestEvent extends JavaPlugin {
-    public static String PREFIX = "§9ChestEvent > §7";
-    public static String ERROR = "§cErreur > §7";
+    public static String PREFIX = "§9Récompenses > §7";
+    public static String ERROR = "§cRécompenses > §7";
 
     private Map<UUID, Pager> PAGER_CACHE = new HashMap<>();
 
