@@ -18,7 +18,6 @@ import org.bukkit.inventory.meta.ItemMeta;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import java.util.stream.Collectors;
 
 public class CmdChestEvent implements CommandExecutor {
@@ -37,7 +36,7 @@ public class CmdChestEvent implements CommandExecutor {
 
         String action = args[0].toLowerCase();
         if (action.startsWith(":") && (sender instanceof Player)) {
-            showPage(((Player) sender), action);
+            showPage(sender, action);
         } else if (!sender.hasPermission("chestevent." + action)) {
             sender.sendMessage(ChestEvent.ERROR + "Tu n'as pas la permission.");
         } else if (action.equals("list")) {
@@ -48,7 +47,7 @@ public class CmdChestEvent implements CommandExecutor {
             showHelp(sender);
         } else {
             String event = args[1];
-            if (!Model.getAllNames().contains(event)) {
+            if (!Model.eventExists(event, plugin)) {
                 sender.sendMessage(ChestEvent.ERROR + "Cet événement n'existe pas.");
             } else if (action.equals("viewcontent")) {
                 viewContent(sender, event);
@@ -64,7 +63,7 @@ public class CmdChestEvent implements CommandExecutor {
     }
 
     private void reloadCache(CommandSender sender) {
-        Model.reloadAll(plugin);
+        Model.loadEventList(plugin);
         sender.sendMessage(ChestEvent.PREFIX + "Les modèles ont été chargés.");
     }
 
@@ -79,8 +78,7 @@ public class CmdChestEvent implements CommandExecutor {
 
     private void showEventList(CommandSender sender) {
         Bukkit.getScheduler().runTaskAsynchronously(plugin, () -> {
-            Set<String> models = Model.getAllNames();
-
+            List<Model> models = Model.getEventList();
             // return an error if there is not any event
             if (models.isEmpty()) {
                 sender.sendMessage(ChestEvent.PREFIX + "Il n'y a aucun événement.");
@@ -88,7 +86,7 @@ public class CmdChestEvent implements CommandExecutor {
             }
 
             sender.sendMessage(ChestEvent.PREFIX + "Liste des événements:");
-            models.stream().map(model -> " §7– §b" + model).forEach(sender::sendMessage);
+            models.stream().map(model -> " §7– §b" + model.getName()).forEach(sender::sendMessage);
         });
     }
 
@@ -142,7 +140,7 @@ public class CmdChestEvent implements CommandExecutor {
                 }
 
                 sender.sendMessage(ChestEvent.PREFIX + "§a" + target.getName() + " §7a reçu le coffre de l'événement §a" + event + "§7.");
-                target.getInventory().addItem(chest.getLinkItem());
+                target.getInventory().addItem(chest.getChestItem());
             } else {
                 sender.sendMessage(ChestEvent.ERROR + "§a" + args[2] + " §7est introuvable.");
             }
@@ -157,25 +155,25 @@ public class CmdChestEvent implements CommandExecutor {
                 }
 
                 sender.sendMessage(ChestEvent.PREFIX + "Vous avez reçu le coffre de l'événement §a" + event + "§7.");
-                player.getInventory().addItem(chest.getLinkItem());
+                player.getInventory().addItem(chest.getChestItem());
             } else {
                 sender.sendMessage(ChestEvent.PREFIX + "Vous devez etre un joueur pour effectuer cette action.");
             }
         }
     }
 
-    private void showPage(Player player, String arg) {
+    private void showPage(CommandSender sender, String arg) {
         String number = arg.substring(1);
         try {
             // parse the string to a number
             int page = Integer.parseInt(number);
 
             // get pager from cache
-            Pager pager = plugin.getPagers().get((player).getUniqueId());
+            Pager pager = plugin.getPagers().get(((Player) sender).getUniqueId());
 
             // return an error if the page doesn't exists
             if (pager.getMaxPage() < page || page < 1) {
-                player.sendMessage(ChestEvent.ERROR + "Cette page n'existe pas.");
+                sender.sendMessage(ChestEvent.ERROR + "Cette page n'existe pas.");
                 return;
             }
 
@@ -188,11 +186,11 @@ public class CmdChestEvent implements CommandExecutor {
             message.addExtra(getPageSelector(pager));
 
             // send messages
-            player.sendMessage("\n");
-            player.spigot().sendMessage(message);
-            pager.getView().forEach(msg -> player.spigot().sendMessage(msg));
+            sender.sendMessage("\n");
+            ((Player) sender).spigot().sendMessage(message);
+            pager.getPage(pager.getCurrentPage()).forEach(msg -> ((Player) sender).spigot().sendMessage(msg));
         } catch (NumberFormatException e) {
-            player.sendMessage(ChestEvent.ERROR + "Cette page n'existe pas.");
+            sender.sendMessage(ChestEvent.ERROR + "Cette page n'existe pas.");
         }
     }
 
@@ -261,7 +259,7 @@ public class CmdChestEvent implements CommandExecutor {
             if (sender instanceof Player) {
                 Player player = (Player) sender;
                 player.spigot().sendMessage(message);
-                pager.getView().forEach(msg -> player.spigot().sendMessage(msg));
+                pager.getPage(1).forEach(msg -> player.spigot().sendMessage(msg));
             } else {
                 sender.sendMessage(BaseComponent.toLegacyText(message));
                 messages.stream().map(b -> b.toLegacyText()).forEach(sender::sendMessage);

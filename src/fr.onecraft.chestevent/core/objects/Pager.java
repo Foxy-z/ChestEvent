@@ -5,22 +5,22 @@ import net.md_5.bungee.api.chat.TextComponent;
 import java.util.List;
 
 public class Pager {
-    public static final int PAGE_SIZE = 9;
-
-    private final String event;
-    private final List<TextComponent> messages;
-
+    private String event;
+    private int size;
     private int currentPage;
+    private List<TextComponent> messages;
 
     public Pager(String event, List<TextComponent> messages) {
         this.event = event;
+        this.size = 15;
         this.currentPage = 1;
         this.messages = messages;
     }
 
-    public List<TextComponent> getView() {
-        int from = (currentPage - 1) * PAGE_SIZE;
-        int to = Math.min(messages.size(), currentPage * PAGE_SIZE);
+    public List<TextComponent> getPage(int page) {
+        currentPage = page;
+        int from = (page - 1) * size;
+        int to = getMaxPage() == page ? messages.size() : page * size;
         return messages.subList(from, to);
     }
 
@@ -29,7 +29,7 @@ public class Pager {
     }
 
     public int getMaxPage() {
-        return (int) Math.ceil((double) messages.size() / PAGE_SIZE);
+        return (int) Math.ceil((double) messages.size() / size);
     }
 
     public int getCurrentPage() {
