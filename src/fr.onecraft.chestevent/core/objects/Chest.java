@@ -10,58 +10,47 @@ import org.bukkit.inventory.ItemFlag;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 
-import java.io.File;
 import java.util.Arrays;
 import java.util.List;
 
 public class Chest {
-    public final static String CHEST_NAME = "§6§lCoffre d'événement";
 
-    private ChestEvent plugin;
-    private int id;
-    private String name;
-    private List<ItemStack> itemList;
+    public static final String CHEST_NAME = "§6§lCoffre d'événement";
+    public static final String DIRECTORY = "chests";
 
     public static Chest fromId(ChestEvent plugin, int id) {
-        Configuration configuration = Configs.get(plugin, "Chests", id);
-        if (configuration != null) {
-            return new Chest(plugin, configuration, id);
-        } else {
-            return null;
-        }
+        Configuration conf = Configs.get(plugin, DIRECTORY, id);
+        return conf != null ? new Chest(plugin, conf, id) : null;
     }
+
+    private final ChestEvent plugin;
+    private final int id;
+    private final String name;
+    private final List<ItemStack> items;
 
     private Chest(ChestEvent plugin, ConfigurationSection config, int id) {
         this.plugin = plugin;
         this.id = id;
         this.name = config.getString("code-name");
-        this.itemList = Model.loadContent(config);
-    }
-
-    private int getId() {
-        return id;
-    }
-
-    private String getName() {
-        return name;
+        this.items = Configs.loadItems(config);
     }
 
     public String getPermission() {
-        return "chestevent.open." + getName();
+        return "chestevent.open." + name;
     }
 
-    public ItemStack getChestItem() {
-        ItemStack itemStack = new ItemStack(Material.CHEST);
-        ItemMeta itemMeta = itemStack.getItemMeta();
-        itemMeta.setDisplayName(CHEST_NAME);
-        itemMeta.setLore(Arrays.asList("§7Événement: §6" + name, "§7Contenu: §6#" + id));
-        itemMeta.addItemFlags(ItemFlag.HIDE_ENCHANTS);
-        itemMeta.addEnchant(Enchantment.OXYGEN, 1, true);
-        itemStack.setItemMeta(itemMeta);
-        return itemStack;
+    public ItemStack getLinkItem() {
+        ItemStack item = new ItemStack(Material.CHEST);
+        ItemMeta meta = item.getItemMeta();
+        meta.setDisplayName(CHEST_NAME);
+        meta.setLore(Arrays.asList("§7Événement: §6" + name, "§7Contenu: §6#" + id));
+        meta.addItemFlags(ItemFlag.HIDE_ENCHANTS);
+        meta.addEnchant(Enchantment.OXYGEN, 1, true);
+        item.setItemMeta(meta);
+        return item;
     }
 
     public Menu getMenu() {
-        return new Menu(plugin, id, itemList);
+        return new Menu(plugin, id, items);
     }
 }

@@ -12,17 +12,25 @@ import org.bukkit.event.block.Action;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.event.inventory.InventoryCloseEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
+import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 
 import java.util.List;
 
-public class ChestListener implements Listener {
-    private ChestEvent plugin;
+public class EventListener implements Listener {
 
-    public ChestListener(ChestEvent plugin) {
+    private final ChestEvent plugin;
+
+    public EventListener(ChestEvent plugin) {
         this.plugin = plugin;
+    }
+
+    @EventHandler
+    public void on(PlayerQuitEvent event) {
+        // remove the pager of the player from the cache
+        plugin.getPagers().remove(event.getPlayer().getUniqueId());
     }
 
     /*
@@ -32,28 +40,20 @@ public class ChestListener implements Listener {
     public void on(PlayerInteractEvent event) {
         // if it is a right click
         Action action = event.getAction();
-        if (action != Action.RIGHT_CLICK_BLOCK && action != Action.RIGHT_CLICK_AIR) {
-            return;
-        }
+        if (action != Action.RIGHT_CLICK_BLOCK && action != Action.RIGHT_CLICK_AIR) return;
 
+        // if clicked item is a chest
         Player player = event.getPlayer();
         ItemStack item = player.getItemInHand();
-        // if clicked item is a chest
-        if (item == null || item.getType() != Material.CHEST) {
-            return;
-        }
+        if (item == null || item.getType() != Material.CHEST) return;
 
-        ItemMeta meta = item.getItemMeta();
         // check if the chest's name is right
-        if (meta.getDisplayName() == null || !meta.getDisplayName().equals(Chest.CHEST_NAME)) {
-            return;
-        }
+        ItemMeta meta = item.getItemMeta();
+        if (meta.getDisplayName() == null || !meta.getDisplayName().equals(Chest.CHEST_NAME)) return;
 
-        List<String> lore = meta.getLore();
         // check if lore is right
-        if (lore == null || lore.size() < 2) {
-            return;
-        }
+        List<String> lore = meta.getLore();
+        if (lore == null || lore.size() < 2) return;
 
         int id;
         try {
@@ -69,13 +69,13 @@ public class ChestListener implements Listener {
         if (chest == null) {
             player.getInventory().setItemInHand(new ItemStack(Material.AIR));
             player.sendMessage(ChestEvent.ERROR + "Ce coffre n'existe plus.");
+            event.setCancelled(true);
             return;
         }
 
         // open the inventory if the player has the permission
         if (player.hasPermission(chest.getPermission())) {
-            Menu menu = chest.getMenu();
-            player.openInventory(menu.getPage(1));
+            player.openInventory(chest.getMenu().getView());
             event.setCancelled(true);
         }
     }
@@ -86,44 +86,36 @@ public class ChestListener implements Listener {
     @EventHandler
     public void on(InventoryClickEvent event) {
         // cancel if this is not an inventory from the plugin
-        if (!(event.getInventory().getHolder() instanceof Menu)) {
-            return;
-        }
+        if (!(event.getInventory().getHolder() instanceof Menu)) return;
         event.setCancelled(true);
 
         Player player = (Player) event.getWhoClicked();
         Inventory inventory = event.getClickedInventory();
-        if (inventory == null) {
-            return;
-        }
+        if (inventory == null) return;
 
         // cancel if the clicked inventory is not the top inventory
-        if (!event.getClickedInventory().equals(player.getOpenInventory().getTopInventory())) {
-            return;
-        }
+        if (!event.getClickedInventory().equals(player.getOpenInventory().getTopInventory())) return;
 
         Menu menu = (Menu) inventory.getHolder();
         ItemStack clickedItem = event.getCurrentItem();
         // cancel if clicked item is null or is air
-        if (clickedItem == null || clickedItem.getType() == Material.AIR) {
-            return;
-        }
+        if (clickedItem == null || clickedItem.getType() == Material.AIR) return;
 
         int clickedSlot = event.getSlot();
 
         // if there is pages
         if (clickedSlot >= Menu.ITEMS_PER_PAGE) {
-            // if clicked button is previous page button
             if (clickedSlot == Menu.ITEMS_PER_PAGE) {
+                // clicked on previous page button
                 if (menu.getCurrentPage() > 1) {
-                    menu.setCurrentPage(menu.getCurrentPage() - 1);
-                    player.openInventory(menu.getPage(menu.getCurrentPage()));
+                    menu.updatePageIndex(-1);
+                    player.openInventory(menu.getView());
                 }
-                // if clicked button is next page button
             } else if (clickedSlot == Menu.ITEMS_PER_PAGE + 8) {
-                if (menu.getCurrentPage() < Math.ceil((double) menu.getSize() / Menu.ITEMS_PER_PAGE)) {
-                    menu.setCurrentPage(menu.getCurrentPage() + 1);
-                    player.openInventory(menu.getPage(menu.getCurrentPage()));
+                // clicked on next page button
+                if (menu.getCurrentPage() < menu.getMaxPage()) {
+                    menu.updatePageIndex(+1);
+                    player.openInventory(menu.getView());
                 }
             }
             return;
@@ -149,6 +141,7 @@ public class ChestListener implements Listener {
             player.updateInventory();
             player.closeInventory();
             menu.deleteChest();
+            player.sendMessage(ChestEvent.PREFIX + "Le coffre est désormais vide !");
         }
     }
 
@@ -158,24 +151,21 @@ public class ChestListener implements Listener {
     @EventHandler
     public void on(InventoryCloseEvent event) {
         // if this is not an inventory from the plugin
-        if (!(event.getInventory().getHolder() instanceof Menu)) {
-            return;
-        }
+        if (!(event.getInventory().getHolder() instanceof Menu)) return;
 
-        Inventory inventory = event.getInventory();
+        Menu menu = ((Menu) event.getInventory().getHolder());
+
         // one tick later
         Bukkit.getScheduler().runTaskLater(plugin, () -> {
             // check if the opened inventory is from the plugin
-            if (event.getPlayer().getOpenInventory().getTopInventory().getHolder() instanceof Menu)
-                return;
-            Menu menu = (Menu) inventory.getHolder();
+            if (event.getPlayer().getOpenInventory().getTopInventory().getHolder() instanceof Menu) return;
 
-            // skip the saving if the inventory is empty
+            // save only if there is items
             if (menu.getItems().isEmpty()) {
-                return;
+                menu.deleteChest();
+            } else {
+                menu.saveChest();
             }
-
-            menu.saveChest();
         }, 1);
     }
 }

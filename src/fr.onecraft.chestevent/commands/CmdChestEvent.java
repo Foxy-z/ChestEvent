@@ -47,24 +47,19 @@ public class CmdChestEvent implements CommandExecutor {
             showHelp(sender);
         } else {
             String event = args[1];
-            if (!Model.eventExists(event, plugin)) {
+            if (Model.get(event) == null) {
                 sender.sendMessage(ChestEvent.ERROR + "Cet événement n'existe pas.");
-            } else if (action.equals("viewcontent")) {
-                viewContent(sender, event);
             } else if (action.equals("info")) {
                 info(sender, event);
             } else if (action.equals("give")) {
                 give(sender, event, args);
+            } else if (action.equals("viewcontent")) {
+                viewContent(sender, event);
             } else {
                 showHelp(sender);
             }
         }
         return true;
-    }
-
-    private void reloadCache(CommandSender sender) {
-        Model.loadEventList(plugin);
-        sender.sendMessage(ChestEvent.PREFIX + "Les modèles ont été chargés.");
     }
 
     private void showHelp(CommandSender sender) {
@@ -76,195 +71,159 @@ public class CmdChestEvent implements CommandExecutor {
                 + (sender.hasPermission("chestevent.reload") ? "\n§b/chestevent reload §7met à jour les événements" : ""));
     }
 
-    private void showEventList(CommandSender sender) {
-        Bukkit.getScheduler().runTaskAsynchronously(plugin, () -> {
-            List<Model> models = Model.getEventList();
-            // return an error if there is not any event
-            if (models.isEmpty()) {
-                sender.sendMessage(ChestEvent.PREFIX + "Il n'y a aucun événement.");
-                return;
-            }
+    private void showPage(Player player, String arg) {
+        int page;
+        try {
+            // parse the string to a number
+            page = Integer.parseInt(arg.substring(1));
+        } catch (NumberFormatException e) {
+            player.sendMessage(ChestEvent.ERROR + "Cette page n'existe pas.");
+            return;
+        }
 
+        // get pager from cache
+        Pager pager = plugin.getPagers().get((player).getUniqueId());
+
+        // return an error if the page doesn't exists
+        if (page > pager.getMaxPage() || page <= 0) {
+            player.sendMessage(ChestEvent.ERROR + "Cette page n'existe pas.");
+            return;
+        }
+
+        // update the current page
+        pager.setCurrentPage(page);
+
+        // add the first line with prefix + event name + page selector
+        TextComponent message = new TextComponent(ChestEvent.PREFIX + "Contenu de l'événement §a" + pager.getEvent() + "§7: ");
+        message.setColor(ChatColor.GRAY);
+        message.addExtra(getPageSelector(pager));
+
+        // send messages
+        player.sendMessage("\n");
+        player.spigot().sendMessage(message);
+        pager.getView().forEach(msg -> player.spigot().sendMessage(msg));
+
+    }
+
+    private void showEventList(CommandSender sender) {
+        if (Model.getAllNames().isEmpty()) {
+            sender.sendMessage(ChestEvent.PREFIX + "Il n'y a aucun événement.");
+        } else {
             sender.sendMessage(ChestEvent.PREFIX + "Liste des événements:");
-            models.stream().map(model -> " §7– §b" + model.getName()).forEach(sender::sendMessage);
-        });
+            Model.getAllNames().stream().map(model -> " §7– §b" + model).forEach(sender::sendMessage);
+        }
+    }
+
+    private void reloadCache(CommandSender sender) {
+        Model.reloadAll(plugin);
+        sender.sendMessage(ChestEvent.PREFIX + "Les modèles ont été chargés.");
     }
 
     private void info(CommandSender sender, String event) {
-        Bukkit.getScheduler().runTaskAsynchronously(plugin, () -> {
-            Model model = Model.fromName(plugin, event);
-
-            // return an error if the model's configuration is not valid
-            if (model == null) {
-                sender.sendMessage(ChestEvent.PREFIX + "La configuration du modèle n'est pas valide.");
-                return;
-            }
-
-            sender.sendMessage(ChestEvent.PREFIX + "Informations sur l'événement §a" + event + "§7: \n"
-                    + " §8- §7Description: §b" + model.getDescription() + "\n"
-                    + " §8- §7Permission: §b" + model.getPermission() + "\n"
-            );
-        });
+        Model model = Model.get(event);
+        sender.sendMessage(ChestEvent.PREFIX + "Informations sur l'événement §a" + event + "§7: \n"
+                + " §8- §7Description: §b" + model.getDescription() + "\n"
+                + " §8- §7Permission: §b" + model.getPermission() + "\n"
+        );
     }
 
     private void give(CommandSender sender, String event, String[] args) {
-        // return an error if the model's name is not valid
-        if (!Model.isValidName(event)) {
-            sender.sendMessage(ChestEvent.PREFIX + "Le nom du modèle n'est pas valide, il ne peut comporter que des lettres, chiffres et tirets.");
-            return;
-        }
+        Player target;
+        boolean self;
 
-        Model model = Model.fromName(plugin, event);
-        // return an error if the model's configuration is not valid
-        if (model == null) {
-            sender.sendMessage(ChestEvent.PREFIX + "La configuration du modèle n'est pas valide.");
-            return;
-        }
-
-        Chest chest = model.createChest();
-        // return an error if the plugin can't create the chest
-        if (chest == null) {
-            sender.sendMessage(ChestEvent.PREFIX + "Erreur lors de la création du coffre.");
-            return;
-        }
-
-        // if there is a specified player to get the chest or else give it to the command sender
         if (args.length > 2) {
-            Player target = Bukkit.getPlayer(args[2]);
-            // give the chest if the target is online or else return an error
-            if (target != null) {
-                // return an error if the target's inventory is full
-                if (target.getInventory().firstEmpty() == -1) {
-                    sender.sendMessage(ChestEvent.ERROR + "Impossible de donner le coffre, l'inventaire de §a" + target.getName() + " §7est plein.");
-                    return;
-                }
-
-                sender.sendMessage(ChestEvent.PREFIX + "§a" + target.getName() + " §7a reçu le coffre de l'événement §a" + event + "§7.");
-                target.getInventory().addItem(chest.getChestItem());
-            } else {
-                sender.sendMessage(ChestEvent.ERROR + "§a" + args[2] + " §7est introuvable.");
-            }
+            target = Bukkit.getPlayerExact(args[2]);
+            self = false;
+        } else if (sender instanceof Player) {
+            target = ((Player) sender);
+            self = true;
         } else {
-            // give the chest to the sender if it is a player
-            if (sender instanceof Player) {
-                Player player = (Player) sender;
-                // return an error if the player's inventory is full
-                if (player.getInventory().firstEmpty() == -1) {
-                    sender.sendMessage(ChestEvent.ERROR + "Impossible de vous donner le coffre, votre inventaire est plein.");
-                    return;
-                }
-
-                sender.sendMessage(ChestEvent.PREFIX + "Vous avez reçu le coffre de l'événement §a" + event + "§7.");
-                player.getInventory().addItem(chest.getChestItem());
-            } else {
-                sender.sendMessage(ChestEvent.PREFIX + "Vous devez etre un joueur pour effectuer cette action.");
-            }
+            showHelp(sender);
+            return;
         }
-    }
 
-    private void showPage(Player player, String arg) {
-        String number = arg.substring(1);
-        try {
-            // parse the string to a number
-            int page = Integer.parseInt(number);
+        if (target == null) {
+            sender.sendMessage(ChestEvent.ERROR + "§a" + args[2] + " §7est introuvable.");
+            return;
+        }
 
-            // get pager from cache
-            Pager pager = plugin.getPagers().get((player).getUniqueId());
+        if (target.getInventory().firstEmpty() == -1) {
+            sender.sendMessage(ChestEvent.ERROR + (self ? "Votre" : "Son") + " inventaire est plein.");
+            return;
+        }
 
-            // return an error if the page doesn't exists
-            if (pager.getMaxPage() < page || page < 1) {
-                player.sendMessage(ChestEvent.ERROR + "Cette page n'existe pas.");
-                return;
-            }
-
-            // update the current page
-            pager.setCurrentPage(page);
-
-            // add the first line with prefix + event name + page selector
-            TextComponent message = new TextComponent(ChestEvent.PREFIX + "Contenu de l'événement §a" + pager.getEvent() + "§7: ");
-            message.setColor(ChatColor.GRAY);
-            message.addExtra(getPageSelector(pager));
-
-            // send messages
-            player.sendMessage("\n");
-            player.spigot().sendMessage(message);
-            pager.getPage(pager.getCurrentPage()).forEach(msg -> player.spigot().sendMessage(msg));
-        } catch (NumberFormatException e) {
-            player.sendMessage(ChestEvent.ERROR + "Cette page n'existe pas.");
+        Chest chest = Model.get(event).createChest();
+        target.getInventory().addItem(chest.getLinkItem());
+        target.sendMessage(ChestEvent.PREFIX + "Vous avez reçu le coffre de l'événement §a" + event + "§7.");
+        if (!self) {
+            sender.sendMessage(ChestEvent.PREFIX + "§a" + target.getName() + " §7a reçu le coffre de l'événement §a" + event + "§7.");
         }
     }
 
     private void viewContent(CommandSender sender, String event) {
-        Bukkit.getScheduler().runTaskAsynchronously(plugin, () -> {
-            Model model = Model.fromName(plugin, event);
-            // return an error if the model is not valid
-            if (model == null) {
-                sender.sendMessage(ChestEvent.PREFIX + "La configuration du modèle n'est pas valide.");
-                return;
+        Model model = Model.get(event);
+        List<ItemStack> items = model.getContent();
+        List<TextComponent> messages = new ArrayList<>();
+
+        for (ItemStack itemStack : items) {
+            ItemMeta meta = itemStack.getItemMeta();
+
+            // add item type + item amount + display name
+            TextComponent component = new TextComponent("§8- §b" + itemStack.getType() + " x" + itemStack.getAmount() + " §7" + itemStack.getItemMeta().getDisplayName());
+
+            // add lore
+            String lore = "";
+            if (meta.getLore() != null) {
+                lore = meta.getLore().stream()
+                        .map(desc -> "\n" + desc)
+                        .collect(Collectors.joining());
             }
 
-            List<ItemStack> items = model.getContent();
-            List<TextComponent> messages = new ArrayList<>();
-            for (ItemStack itemStack : items) {
-                ItemMeta meta = itemStack.getItemMeta();
-
-                // add item type + item amount + display name
-                TextComponent component = new TextComponent("§8- §b" + itemStack.getType() + " x" + itemStack.getAmount() + " §7" + itemStack.getItemMeta().getDisplayName());
-
-                // add lore
-                String lore = "";
-                if (meta.getLore() != null) {
-                    lore = meta.getLore().stream()
-                            .map(desc -> "\n" + desc)
-                            .collect(Collectors.joining());
+            // add enchants
+            StringBuilder enchants = new StringBuilder();
+            Map<Enchantment, Integer> enchantments = meta.getEnchants();
+            if (!enchantments.isEmpty()) {
+                int index = 0;
+                for (Enchantment enchantment : enchantments.keySet()) {
+                    enchants.append("\n §8– §b").append(enchantment.getName()).append(" niv.").append(enchantments.values().toArray()[index]);
+                    index++;
                 }
-
-                // add enchants
-                String enchants = "";
-                Map<Enchantment, Integer> enchantements = meta.getEnchants();
-                if (!enchantements.isEmpty()) {
-                    int index = 0;
-                    for (Enchantment enchantment : enchantements.keySet()) {
-                        enchants = enchants + "\n §8– §b" + enchantment.getName() + " niv." + enchantements.values().toArray()[index];
-                        index++;
-                    }
-                }
-
-                // add lore and enchants texts to the hover event
-                component.setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, new ComponentBuilder(
-                        (!lore.isEmpty() ? "§7§lDescription" + lore : "")
-                                + (!lore.isEmpty() && !enchantements.isEmpty() ? "\n \n" : "")
-                                + (!enchantements.isEmpty() ? "§7§lEnchantements" + enchants : "")
-                ).create()));
-                messages.add(component);
             }
 
-            Pager pager = new Pager(event, messages);
-            // put the pager in cache if the command sender is a player
-            if (sender instanceof Player) {
-                plugin.getPagers().put(((Player) sender).getUniqueId(), pager);
-            }
+            // add lore and enchants texts to the hover event
+            component.setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, new ComponentBuilder(
+                    (!lore.isEmpty() ? "§7§lDescription" + lore : "")
+                            + (!lore.isEmpty() && !enchantments.isEmpty() ? "\n \n" : "")
+                            + (!enchantments.isEmpty() ? "§7§lEnchantements" + enchants : "")
+            ).create()));
+            messages.add(component);
+        }
 
-            // add the first line with prefix + event name
-            TextComponent message = new TextComponent(ChestEvent.PREFIX + "Contenu de l'événement §a" + event + "§7: ");
-            message.setColor(ChatColor.GRAY);
+        Pager pager = new Pager(event, messages);
+        // put the pager in cache if the command sender is a player
+        if (sender instanceof Player) {
+            plugin.getPagers().put(((Player) sender).getUniqueId(), pager);
+        }
 
-            // add page selector if there is more than 15 items
-            if (items.size() > 15 && sender instanceof Player) {
-                message.addExtra(getPageSelector(pager));
-            }
+        // add the first line with prefix + event name
+        TextComponent message = new TextComponent(ChestEvent.PREFIX + "Contenu de l'événement §a" + event + "§7: ");
+        message.setColor(ChatColor.GRAY);
 
-            // send messages
-            sender.sendMessage("\n");
-            if (sender instanceof Player) {
-                Player player = (Player) sender;
-                player.spigot().sendMessage(message);
-                pager.getPage(1).forEach(msg -> player.spigot().sendMessage(msg));
-            } else {
-                sender.sendMessage(BaseComponent.toLegacyText(message));
-                messages.stream().map(b -> b.toLegacyText()).forEach(sender::sendMessage);
-            }
-        });
+        // add page selector if there is too much items
+        if (items.size() > Pager.PAGE_SIZE && sender instanceof Player) {
+            message.addExtra(getPageSelector(pager));
+        }
+
+        // send messages
+        sender.sendMessage("\n");
+        if (sender instanceof Player) {
+            Player player = (Player) sender;
+            player.spigot().sendMessage(message);
+            pager.getView().forEach(msg -> player.spigot().sendMessage(msg));
+        } else {
+            sender.sendMessage(BaseComponent.toLegacyText(message));
+            messages.stream().map(BaseComponent::toLegacyText).forEach(sender::sendMessage);
+        }
     }
 
     private TextComponent getPageSelector(Pager pager) {
