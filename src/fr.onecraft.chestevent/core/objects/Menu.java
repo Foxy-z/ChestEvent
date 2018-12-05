@@ -18,7 +18,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 public class Menu implements InventoryHolder {
-    public static final int ITEM_ROWS = 5;
+    public static final int ITEM_ROWS = 3;
     public static final int ITEMS_PER_PAGE = ITEM_ROWS * 9;
 
     private static final Material PAGE_BUTTON = Material.REDSTONE;
@@ -47,9 +47,9 @@ public class Menu implements InventoryHolder {
                 result.setItem(count - (page - 1) * ITEMS_PER_PAGE, item);
             }
 
-            result.setItem(Menu.ITEMS_PER_PAGE, getNextButton());
+            result.setItem(Menu.ITEMS_PER_PAGE, getPreviousButton());
             result.setItem(Menu.ITEMS_PER_PAGE + 4, getPageButton(page));
-            result.setItem(Menu.ITEMS_PER_PAGE + 8, getPreviewButton());
+            result.setItem(Menu.ITEMS_PER_PAGE + 8, getNextButton());
             count++;
         }
 
@@ -149,7 +149,7 @@ public class Menu implements InventoryHolder {
         return itemStack;
     }
 
-    private ItemStack getPreviewButton() {
+    private ItemStack getPreviousButton() {
         ItemStack itemStack = new ItemStack(PAGE_BUTTON);
         ItemMeta meta = itemStack.getItemMeta();
         meta.setDisplayName("§6§l <<< Page précédente <<< ");
@@ -162,6 +162,7 @@ public class Menu implements InventoryHolder {
         ItemMeta meta = itemStack.getItemMeta();
         meta.setDisplayName("§6§l <<< Page " + page + " >>> ");
         itemStack.setItemMeta(meta);
+        itemStack.setAmount(page);
         return itemStack;
     }
 }
