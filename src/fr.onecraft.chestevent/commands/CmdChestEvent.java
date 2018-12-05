@@ -222,7 +222,7 @@ public class CmdChestEvent implements CommandExecutor {
             pager.getView().forEach(msg -> player.spigot().sendMessage(msg));
         } else {
             sender.sendMessage(BaseComponent.toLegacyText(message));
-            messages.stream().map(BaseComponent::toLegacyText).forEach(sender::sendMessage);
+            messages.stream().map(msg -> BaseComponent.toLegacyText(msg)).forEach(sender::sendMessage);
         }
     }
 
