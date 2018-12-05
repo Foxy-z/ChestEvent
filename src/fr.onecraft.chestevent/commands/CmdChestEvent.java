@@ -36,7 +36,7 @@ public class CmdChestEvent implements CommandExecutor {
 
         String action = args[0].toLowerCase();
         if (action.startsWith(":") && (sender instanceof Player)) {
-            showPage(sender, action);
+            showPage(((Player) sender), action);
         } else if (!sender.hasPermission("chestevent." + action)) {
             sender.sendMessage(ChestEvent.ERROR + "Tu n'as pas la permission.");
         } else if (action.equals("list")) {
@@ -162,18 +162,18 @@ public class CmdChestEvent implements CommandExecutor {
         }
     }
 
-    private void showPage(CommandSender sender, String arg) {
+    private void showPage(Player player, String arg) {
         String number = arg.substring(1);
         try {
             // parse the string to a number
             int page = Integer.parseInt(number);
 
             // get pager from cache
-            Pager pager = plugin.getPagers().get(((Player) sender).getUniqueId());
+            Pager pager = plugin.getPagers().get((player).getUniqueId());
 
             // return an error if the page doesn't exists
             if (pager.getMaxPage() < page || page < 1) {
-                sender.sendMessage(ChestEvent.ERROR + "Cette page n'existe pas.");
+                player.sendMessage(ChestEvent.ERROR + "Cette page n'existe pas.");
                 return;
             }
 
@@ -186,11 +186,11 @@ public class CmdChestEvent implements CommandExecutor {
             message.addExtra(getPageSelector(pager));
 
             // send messages
-            sender.sendMessage("\n");
-            ((Player) sender).spigot().sendMessage(message);
-            pager.getPage(pager.getCurrentPage()).forEach(msg -> ((Player) sender).spigot().sendMessage(msg));
+            player.sendMessage("\n");
+            player.spigot().sendMessage(message);
+            pager.getPage(pager.getCurrentPage()).forEach(msg -> player.spigot().sendMessage(msg));
         } catch (NumberFormatException e) {
-            sender.sendMessage(ChestEvent.ERROR + "Cette page n'existe pas.");
+            player.sendMessage(ChestEvent.ERROR + "Cette page n'existe pas.");
         }
     }
 
