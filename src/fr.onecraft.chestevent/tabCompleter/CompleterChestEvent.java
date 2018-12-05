@@ -33,8 +33,8 @@ public class CompleterChestEvent implements TabCompleter {
                     || sender.hasPermission("chestevent.viewcontent")) {
 
                 String token = args[1].toLowerCase();
-                return Model.getEventList().stream()
-                        .map(model -> model.getName().replace(".yml", ""))
+                return Model.getAllNames().stream()
+                        .map(model -> model.replace(".yml", ""))
                         .filter(name -> name.toLowerCase().startsWith(token))
                         .collect(Collectors.toList());
             }
