@@ -31,7 +31,7 @@ public class Chest {
     private Chest(ChestEvent plugin, ConfigurationSection config, int id) {
         this.plugin = plugin;
         this.id = id;
-        this.name = config.getString("code-name");
+        this.name = config.getString("event-name");
         this.items = Configs.loadItems(config);
     }
 
