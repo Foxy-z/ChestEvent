@@ -147,7 +147,7 @@ public class EventListener implements Listener {
             player.closeInventory();
             menu.deleteChest();
             player.sendMessage(ChestEvent.PREFIX + "Le coffre est désormais vide !");
-            plugin.logToFile("REMOVE_EMPTY", player.getName() + " took the last item of chest " + menu.getChestId() + ", it has been removed");
+            plugin.logToFile("REMOVE_EMPTY", player.getName() + " took the last item of a chest, it has been removed (ChestID: " + menu.getChestId() + ")");
         }
     }
 
