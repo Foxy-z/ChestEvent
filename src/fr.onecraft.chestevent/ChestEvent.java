@@ -78,10 +78,8 @@ public class ChestEvent extends JavaPlugin {
                     // delete the file if it has expired
                     return conf != null && System.currentTimeMillis() > conf.getLong("expire-date");
                 })
-                .forEach(file -> {
-                    file.delete();
-                    this.logToFile("REMOVE_EXPIRED", "chest " + file.getName().replace(".yml", "") + " has been removed");
-                });
+                .peek(file -> this.logToFile("REMOVE_EXPIRED", "an old chest has been removed (ChestID: " + file.getName().replace(".yml", "") + ")"))
+                .forEach(File::delete);
     }
 
     public void logToFile(String action, String message) {
