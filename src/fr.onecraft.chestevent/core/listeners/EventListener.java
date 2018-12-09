@@ -162,15 +162,15 @@ public class EventListener implements Listener {
         Player player = (Player) event.getPlayer();
         Menu menu = ((Menu) event.getInventory().getHolder());
 
+        // save only if there is items
+        if (menu.getItems().isEmpty()) return;
+
         // one tick later
         Bukkit.getScheduler().runTaskLater(plugin, () -> {
             // check if the opened inventory is from the plugin
             if (player.getOpenInventory().getTopInventory().getHolder() instanceof Menu) return;
 
-            // save only if there is items
-            if (!menu.getItems().isEmpty()) {
-                menu.saveChest();
-            }
+            menu.saveChest();
         }, 1);
     }
 }
