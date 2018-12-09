@@ -35,6 +35,14 @@ public class Chest {
         this.items = Configs.loadItems(config);
     }
 
+    public int getId() {
+        return id;
+    }
+
+    public String getEventName() {
+        return name;
+    }
+
     public String getPermission() {
         return "chestevent.open." + name;
     }

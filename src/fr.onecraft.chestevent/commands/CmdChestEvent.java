@@ -158,6 +158,8 @@ public class CmdChestEvent implements CommandExecutor {
         if (!self) {
             sender.sendMessage(ChestEvent.PREFIX + "§a" + target.getName() + " §7a reçu le coffre de l'événement §a" + event + "§7.");
         }
+
+        plugin.logToFile("GIVE", sender.getName() + " gave " + chest.getEventName() + " (ChestID: " + chest.getId() + ") to " + target.getName());
     }
 
     private void viewContent(CommandSender sender, String event) {

@@ -70,6 +70,7 @@ public class EventListener implements Listener {
             player.getInventory().setItemInHand(new ItemStack(Material.AIR));
             player.sendMessage(ChestEvent.ERROR + "Ce coffre n'existe plus.");
             event.setCancelled(true);
+            plugin.logToFile("OPEN_ERROR", player.getName() + " tried to open a non-existent chest link (ChestID: " + id + ")");
             return;
         }
 
@@ -77,6 +78,7 @@ public class EventListener implements Listener {
         if (player.hasPermission(chest.getPermission())) {
             player.openInventory(chest.getMenu().getView());
             event.setCancelled(true);
+            plugin.logToFile("OPEN", player.getName() + " opened " + chest.getEventName() + " (ChestID: " + chest.getId() + ")");
         }
     }
 
@@ -110,12 +112,14 @@ public class EventListener implements Listener {
                 if (menu.getCurrentPage() > 1) {
                     menu.updatePageIndex(-1);
                     player.openInventory(menu.getView());
+                    plugin.logToFile("CHANGE_PAGE", player.getName() + " changed the page (ChestID: " + menu.getChestId() + ", page: " + menu.getCurrentPage() + "/" + menu.getMaxPage() + ")");
                 }
             } else if (clickedSlot == Menu.ITEMS_PER_PAGE + 8) {
                 // clicked on next page button
                 if (menu.getCurrentPage() < menu.getMaxPage()) {
                     menu.updatePageIndex(+1);
                     player.openInventory(menu.getView());
+                    plugin.logToFile("CHANGE_PAGE", player.getName() + " changed the page (ChestID: " + menu.getChestId() + ", page: " + menu.getCurrentPage() + "/" + menu.getMaxPage() + ")");
                 }
             }
             return;
@@ -128,6 +132,7 @@ public class EventListener implements Listener {
                 player.getInventory().addItem(clickedItem);
                 inventory.setItem(clickedSlot, new ItemStack(Material.AIR));
                 player.updateInventory();
+                plugin.logToFile("ITEM", player.getName() + " took " + clickedItem.getAmount() + "x " + clickedItem.getType().toString() + ":" + clickedItem.getData().getData() + " (ChestID: " + menu.getChestId() + ", remaining items: " + menu.getItems().size() + ")");
             } else {
                 player.sendMessage(ChestEvent.ERROR + "Impossible de récupérer cet item.");
             }
@@ -142,6 +147,7 @@ public class EventListener implements Listener {
             player.closeInventory();
             menu.deleteChest();
             player.sendMessage(ChestEvent.PREFIX + "Le coffre est désormais vide !");
+            plugin.logToFile("REMOVE_EMPTY", player.getName() + " took the last item of chest " + menu.getChestId() + ", it has been removed");
         }
     }
 
@@ -153,17 +159,16 @@ public class EventListener implements Listener {
         // if this is not an inventory from the plugin
         if (!(event.getInventory().getHolder() instanceof Menu)) return;
 
+        Player player = (Player) event.getPlayer();
         Menu menu = ((Menu) event.getInventory().getHolder());
 
         // one tick later
         Bukkit.getScheduler().runTaskLater(plugin, () -> {
             // check if the opened inventory is from the plugin
-            if (event.getPlayer().getOpenInventory().getTopInventory().getHolder() instanceof Menu) return;
+            if (player.getOpenInventory().getTopInventory().getHolder() instanceof Menu) return;
 
             // save only if there is items
-            if (menu.getItems().isEmpty()) {
-                menu.deleteChest();
-            } else {
+            if (!menu.getItems().isEmpty()) {
                 menu.saveChest();
             }
         }, 1);

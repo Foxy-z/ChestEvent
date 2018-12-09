@@ -39,6 +39,7 @@ public class Model {
 
             MODELS.clear();
             MODELS.putAll(models);
+
         });
     }
 

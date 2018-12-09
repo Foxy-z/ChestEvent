@@ -14,10 +14,11 @@ import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.plugin.java.JavaPlugin;
 
 import java.io.File;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.UUID;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.io.PrintWriter;
+import java.text.SimpleDateFormat;
+import java.util.*;
 
 public class ChestEvent extends JavaPlugin {
     public static String PREFIX = "§9Récompenses > §7";
@@ -77,6 +78,30 @@ public class ChestEvent extends JavaPlugin {
                     // delete the file if it has expired
                     return conf != null && System.currentTimeMillis() > conf.getLong("expire-date");
                 })
-                .forEach(File::delete);
+                .forEach(file -> {
+                    file.delete();
+                    this.logToFile("REMOVE_EXPIRED", "chest " + file.getName().replace(".yml", "") + " has been removed");
+                });
+    }
+
+    public void logToFile(String action, String message) {
+        try {
+            Date systemDate = Calendar.getInstance().getTime();
+            String dateStr = new SimpleDateFormat("dd-MM-yyyy").format(systemDate);
+            File file = new File(this.getDataFolder() + "/logs/", dateStr + ".txt");
+            if (!file.exists()) {
+                file.getParentFile().mkdirs();
+                file.createNewFile();
+            }
+
+            FileWriter writer = new FileWriter(file, true);
+            PrintWriter printer = new PrintWriter(writer);
+            String timeStr = new SimpleDateFormat("HH:mm:ss").format(systemDate);
+            printer.println("[" + timeStr + "][" + action + "] " + message);
+            printer.flush();
+            printer.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 }

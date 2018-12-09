@@ -65,6 +65,10 @@ public class Menu implements InventoryHolder {
         return items;
     }
 
+    public int getChestId() {
+        return id;
+    }
+
     @Override
     public Inventory getInventory() {
         return null;
