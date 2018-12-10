@@ -9,6 +9,7 @@ import org.bukkit.inventory.ItemStack;
 
 import java.io.File;
 import java.util.*;
+import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
 public class Model {
@@ -87,7 +88,7 @@ public class Model {
         Configuration chestConfig = Configs.get(plugin, Model.DIRECTORY, eventName);
         if (chestConfig == null) return null;
         chestConfig.set("event-name", eventName);
-        chestConfig.set("expire-date", System.currentTimeMillis() + 30L * 24 * 60 * 60 * 1000);
+        chestConfig.set("expire-date", System.currentTimeMillis() + TimeUnit.DAYS.toMillis(30));
         int id = getAndIncrementId();
         if (id == -1) return null;
         Configs.save(plugin, chestConfig, Chest.DIRECTORY, id);
