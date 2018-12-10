@@ -158,9 +158,10 @@ public class EventListener implements Listener {
     public void on(InventoryCloseEvent event) {
         // if this is not an inventory from the plugin
         if (!(event.getInventory().getHolder() instanceof Menu)) return;
-
         Player player = (Player) event.getPlayer();
         Menu menu = ((Menu) event.getInventory().getHolder());
+
+        plugin.logToFile("CLOSE", player.getName() + " closed a chest (ChestID: " + menu.getChestId() + ")");
 
         // save only if there is items
         if (menu.getItems().isEmpty()) return;
