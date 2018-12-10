@@ -151,15 +151,15 @@ public class CmdChestEvent implements CommandExecutor {
             sender.sendMessage(ChestEvent.ERROR + (self ? "Votre" : "Son") + " inventaire est plein.");
             return;
         }
-
-        Chest chest = Model.get(event).createChest();
+        Model model = Model.get(event);
+        Chest chest = model.createChest();
         target.getInventory().addItem(chest.getLinkItem());
         target.sendMessage(ChestEvent.PREFIX + "Vous avez reçu le coffre de l'événement §a" + event + "§7.");
         if (!self) {
             sender.sendMessage(ChestEvent.PREFIX + "§a" + target.getName() + " §7a reçu le coffre de l'événement §a" + event + "§7.");
         }
 
-        plugin.logToFile("GIVE", sender.getName() + " gave " + chest.getEventName() + " to " + target.getName() + " (ChestID: " + chest.getId() + ")");
+        plugin.logToFile("GIVE", sender.getName() + " gave " + chest.getEventName() + " to " + target.getName() + " (ChestID: " + chest.getId() + ", total items: " + model.getContent().size() + ")");
     }
 
     private void viewContent(CommandSender sender, String event) {
