@@ -161,8 +161,6 @@ public class EventListener implements Listener {
         Player player = (Player) event.getPlayer();
         Menu menu = ((Menu) event.getInventory().getHolder());
 
-        plugin.logToFile("CLOSE", player.getName() + " closed a chest (ChestID: " + menu.getChestId() + ")");
-
         // save only if there is items
         if (menu.getItems().isEmpty()) return;
 
@@ -171,6 +169,7 @@ public class EventListener implements Listener {
             // check if the opened inventory is from the plugin
             if (player.getOpenInventory().getTopInventory().getHolder() instanceof Menu) return;
 
+            plugin.logToFile("CLOSE", player.getName() + " closed a chest (ChestID: " + menu.getChestId() + ")");
             menu.saveChest();
         }, 1);
     }
