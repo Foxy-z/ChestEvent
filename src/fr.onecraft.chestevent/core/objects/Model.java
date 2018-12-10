@@ -87,7 +87,7 @@ public class Model {
         Configuration chestConfig = Configs.get(plugin, Model.DIRECTORY, eventName);
         if (chestConfig == null) return null;
         chestConfig.set("event-name", eventName);
-        chestConfig.set("expire-date", System.currentTimeMillis() + 4 * 24 * 3600 * 1000);
+        chestConfig.set("expire-date", System.currentTimeMillis() + 2_592_000_000L);
         int id = getAndIncrementId();
         if (id == -1) return null;
         Configs.save(plugin, chestConfig, Chest.DIRECTORY, id);
