@@ -45,7 +45,9 @@ public class Configs {
         return get(plugin, folder, String.valueOf(filename));
     }
 
-    /** @noinspection WeakerAccess */
+    /**
+     * @noinspection WeakerAccess
+     */
     public static boolean save(JavaPlugin plugin, Configuration config, String folder, String filename) {
         try {
             YamlConfiguration configuration = new YamlConfiguration();
@@ -90,12 +92,12 @@ public class Configs {
             }
 
             // save item name if any
-            if (!meta.getDisplayName().isEmpty()) {
+            if (meta != null && !meta.getDisplayName().isEmpty()) {
                 section.set("name", meta.getDisplayName().replace("§", "&").substring(2));
             }
 
             // save lore if any
-            List<String> lore = meta.getLore() == null
+            List<String> lore = meta == null || meta.getLore() == null
                     ? null
                     : meta.getLore().stream()
                     .map(string -> string.replace("§", "&").substring(2))
@@ -106,12 +108,14 @@ public class Configs {
             }
 
             // translate enchants to string
-            List<String> enchants = meta.getEnchants().entrySet().stream()
+            List<String> enchants = meta == null
+                    ? null
+                    : meta.getEnchants().entrySet().stream()
                     .map(entry -> entry.getKey().getName() + ":" + entry.getValue())
                     .collect(Collectors.toList());
 
             // save enchants if exists
-            if (!enchants.isEmpty()) {
+            if (enchants != null && !enchants.isEmpty()) {
                 section.set("enchant", enchants);
             }
 
