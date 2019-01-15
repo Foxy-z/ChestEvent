@@ -92,7 +92,7 @@ public class Configs {
             }
 
             // save item name if any
-            if (meta != null && !meta.getDisplayName().isEmpty()) {
+            if (meta != null && meta.getDisplayName() != null) {
                 section.set("name", meta.getDisplayName().replace("§", "&").substring(2));
             }
 
