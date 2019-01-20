@@ -114,7 +114,7 @@ public class Menu implements InventoryHolder {
         ItemStack item = new ItemStack(Material.DOUBLE_PLANT);
         ItemMeta meta = item.getItemMeta();
         meta.setDisplayName("§6§l <<< Page " + page + " >>> ");
-        meta.setLore(Arrays.asList(" ", "§7Expire le: §6" + new SimpleDateFormat("dd:mm:yyyy").format(new Date(expire))));
+        meta.setLore(Arrays.asList(" ", "§7Expire le: §6" + new SimpleDateFormat("dd/MM/yyyy").format(new Date(expire))));
         item.setItemMeta(meta);
         item.setAmount(page);
         return item;
