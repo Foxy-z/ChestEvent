@@ -49,6 +49,10 @@ public class Chest {
         return "chestevent.open." + name;
     }
 
+    public List<ItemStack> getItems() {
+        return items;
+    }
+
     public ItemStack getLinkItem() {
         ItemStack item = new ItemStack(Material.CHEST);
         ItemMeta meta = item.getItemMeta();

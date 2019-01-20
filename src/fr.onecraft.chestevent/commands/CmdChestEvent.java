@@ -47,7 +47,9 @@ public class CmdChestEvent implements CommandExecutor {
             showHelp(sender);
         } else {
             String event = args[1];
-            if (Model.get(event) == null) {
+            if (action.equals("getlink")) {
+                getLink(plugin, sender, args);
+            } else if (Model.get(event) == null) {
                 sender.sendMessage(ChestEvent.ERROR + "Cet événement n'existe pas.");
             } else if (action.equals("info")) {
                 info(sender, event);
@@ -73,6 +75,8 @@ public class CmdChestEvent implements CommandExecutor {
             cmds.add("§b/chestevent list §7liste des événements");
         if (sender.hasPermission("chestevent.give"))
             cmds.add("§b/chestevent give <event> [pseudo]§7 give un coffre d'événement");
+        if (sender.hasPermission("chestevent.getlink"))
+            cmds.add("§b/chestevent getlink <id> [pseudo] §7donne un lien vers un autre coffre");
         if (sender.hasPermission("chestevent.reload"))
             cmds.add("§b/chestevent reload §7met à jour les événements");
 
@@ -156,7 +160,7 @@ public class CmdChestEvent implements CommandExecutor {
         }
 
         if (target == null) {
-            sender.sendMessage(ChestEvent.ERROR + "§a" + args[2] + " §7est introuvable.");
+            sender.sendMessage(ChestEvent.ERROR + "§6" + args[2] + " §7est introuvable.");
             return;
         }
 
@@ -164,6 +168,7 @@ public class CmdChestEvent implements CommandExecutor {
             sender.sendMessage(ChestEvent.ERROR + (self ? "Votre" : "Son") + " inventaire est plein.");
             return;
         }
+
         Model model = Model.get(event);
         Chest chest = model.createChest();
         target.getInventory().addItem(chest.getLinkItem());
@@ -173,6 +178,54 @@ public class CmdChestEvent implements CommandExecutor {
         }
 
         plugin.logToFile("GIVE", sender.getName() + " gave " + chest.getEventName() + " to " + target.getName() + " (ChestID: " + chest.getId() + ", total items: " + model.getContent().size() + ")");
+    }
+
+    private void getLink(ChestEvent plugin, CommandSender sender, String[] args) {
+        Player target;
+        boolean self;
+
+        if (args.length > 2) {
+            target = Bukkit.getPlayerExact(args[2]);
+            self = false;
+        } else if (sender instanceof Player) {
+            target = ((Player) sender);
+            self = true;
+        } else {
+            showHelp(sender);
+            return;
+        }
+
+        if (target == null) {
+            sender.sendMessage(ChestEvent.ERROR + "§6" + args[2] + " §7est introuvable.");
+            return;
+        }
+
+        if (target.getInventory().firstEmpty() == -1) {
+            sender.sendMessage(ChestEvent.ERROR + (self ? "Votre" : "Son") + " inventaire est plein.");
+            return;
+        }
+
+        int id;
+        try {
+            id = Integer.parseInt(args[1]);
+        } catch (NumberFormatException e) {
+            sender.sendMessage(ChestEvent.ERROR + "§6" + args[1] + " §7n'est pas un nombre valide.");
+            return;
+        }
+
+        Chest chest = Chest.fromId(plugin, id);
+        if (chest == null) {
+            sender.sendMessage(ChestEvent.ERROR + "Ce coffre est introuvable.");
+            return;
+        }
+
+        target.getInventory().addItem(chest.getLinkItem());
+        target.sendMessage(ChestEvent.PREFIX + "Vous avez reçu le coffre de l'événement §a" + chest.getEventName() + "§7.");
+        if (!self) {
+            sender.sendMessage(ChestEvent.PREFIX + "§a" + target.getName() + " §7a reçu le coffre de l'événement §a" + chest.getEventName() + "§7.");
+        }
+
+        plugin.logToFile("GIVE_LINK", sender.getName() + " gave " + chest.getEventName() + " to " + target.getName() + " (ChestID: " + chest.getId() + ", total items: " + chest.getItems().size() + ")");
     }
 
     private void viewContent(CommandSender sender, String event) {
