@@ -94,7 +94,7 @@ public class CmdChestEvent implements CommandExecutor {
         pager.setCurrentPage(page);
 
         // add the first line with prefix + event name + page selector
-        TextComponent message = new TextComponent(ChestEvent.PREFIX + "Contenu de l'événement §a" + pager.getEvent() + "§7: ");
+        TextComponent message = new TextComponent(ChestEvent.PREFIX + "Contenu de §a" + pager.getEvent() + "§7: ");
         message.setColor(ChatColor.GRAY);
         message.addExtra(getPageSelector(pager));
 
@@ -169,9 +169,10 @@ public class CmdChestEvent implements CommandExecutor {
 
         for (ItemStack itemStack : items) {
             ItemMeta meta = itemStack.getItemMeta();
+            String displayName = itemStack.getItemMeta().getDisplayName();
 
             // add item type + item amount + display name
-            TextComponent component = new TextComponent("§8- §b" + itemStack.getType() + " x" + itemStack.getAmount() + " §7" + itemStack.getItemMeta().getDisplayName());
+            TextComponent component = new TextComponent("§8- §b" + itemStack.getType() + " x" + itemStack.getAmount() + " §7" + (displayName == null ? "" : displayName));
 
             // add lore
             String lore = "";
@@ -208,7 +209,7 @@ public class CmdChestEvent implements CommandExecutor {
         }
 
         // add the first line with prefix + event name
-        TextComponent message = new TextComponent(ChestEvent.PREFIX + "Contenu de l'événement §a" + event + "§7: ");
+        TextComponent message = new TextComponent(ChestEvent.PREFIX + "Contenu de §a" + event + "§7: ");
         message.setColor(ChatColor.GRAY);
 
         // add page selector if there is too much items

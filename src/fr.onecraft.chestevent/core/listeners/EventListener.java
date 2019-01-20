@@ -79,6 +79,8 @@ public class EventListener implements Listener {
             player.openInventory(chest.getMenu().getView());
             event.setCancelled(true);
             plugin.logToFile("OPEN", player.getName() + " opened " + chest.getEventName() + " (ChestID: " + chest.getId() + ")");
+        } else {
+            player.sendMessage(ChestEvent.ERROR + "Tu n'as pas la permission.");
         }
     }
 

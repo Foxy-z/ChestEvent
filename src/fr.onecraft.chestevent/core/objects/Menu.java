@@ -11,6 +11,9 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 
 import java.io.File;
+import java.text.SimpleDateFormat;
+import java.util.Arrays;
+import java.util.Date;
 import java.util.List;
 
 public class Menu implements InventoryHolder {
@@ -23,14 +26,16 @@ public class Menu implements InventoryHolder {
     private final ChestEvent plugin;
     private final int id;
     private final List<ItemStack> items;
+    private final long expire;
 
     private int currentPage;
 
-    Menu(ChestEvent plugin, int id, List<ItemStack> items) {
+    Menu(ChestEvent plugin, int id, long expire, List<ItemStack> items) {
         this.plugin = plugin;
         this.id = id;
         this.currentPage = 1;
         this.items = items;
+        this.expire = expire;
     }
 
     public Inventory getView() {
@@ -109,6 +114,7 @@ public class Menu implements InventoryHolder {
         ItemStack item = new ItemStack(Material.DOUBLE_PLANT);
         ItemMeta meta = item.getItemMeta();
         meta.setDisplayName("§6§l <<< Page " + page + " >>> ");
+        meta.setLore(Arrays.asList(" ", "§7Expire le: §6" + new SimpleDateFormat("dd:mm:yyyy").format(new Date(expire))));
         item.setItemMeta(meta);
         item.setAmount(page);
         return item;

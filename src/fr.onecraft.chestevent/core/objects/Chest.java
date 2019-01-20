@@ -27,12 +27,14 @@ public class Chest {
     private final int id;
     private final String name;
     private final List<ItemStack> items;
+    private final long expire;
 
     private Chest(ChestEvent plugin, ConfigurationSection config, int id) {
         this.plugin = plugin;
         this.id = id;
         this.name = config.getString("event-name");
         this.items = Configs.loadItems(config);
+        this.expire = config.getLong("expire-date");
     }
 
     public int getId() {
@@ -59,6 +61,10 @@ public class Chest {
     }
 
     public Menu getMenu() {
-        return new Menu(plugin, id, items);
+        return new Menu(plugin, id, expire, items);
+    }
+
+    public long getExpireDate() {
+        return expire;
     }
 }
