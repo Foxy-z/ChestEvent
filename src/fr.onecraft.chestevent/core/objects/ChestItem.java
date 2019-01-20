@@ -6,16 +6,17 @@ import org.bukkit.inventory.ItemStack;
 
 public class ChestItem {
     private static Inventory inv = Bukkit.createInventory(null, 9);
-    private ItemStack originalItem;
-    private ItemStack inventoryItem;
+    private final ItemStack originalItem;
+    private final ItemStack inventoryItem;
 
     public ChestItem(ItemStack itemStack) {
         this.originalItem = itemStack;
+
+        inv.setItem(0, originalItem);
+        this.inventoryItem = inv.getItem(0);
     }
 
     public boolean equalsInventory(ItemStack other) {
-        inv.setItem(0, originalItem);
-        this.inventoryItem = inv.getItem(0);
         return inventoryItem.equals(other);
     }
 

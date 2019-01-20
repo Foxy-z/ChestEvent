@@ -75,23 +75,19 @@ public class Menu implements InventoryHolder {
     }
 
     public boolean removeInventoryItem(ItemStack clickedItem, boolean stack) {
-
         for (int i = 0; i < items.size(); i++) {
             ChestItem item = items.get(i);
             if (item.equalsInventory(clickedItem)) {
                 if (stack || item.getOriginal().getAmount() == 1) {
                     items.remove(i);
                 } else {
-                    ChestItem toReplace = items.get(i);
-                    toReplace.getOriginal().setAmount(toReplace.getOriginal().getAmount() - 1);
-                    items.set(i, toReplace);
+                    ItemStack itemStack = items.get(i).getOriginal();
+                    itemStack.setAmount(itemStack.getAmount() - 1);
                 }
                 return true;
             }
         }
         return false;
-
-
 
         /*
         Iterator<ChestItem> iterator = items.iterator();
