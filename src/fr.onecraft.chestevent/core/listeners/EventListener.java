@@ -131,7 +131,7 @@ public class EventListener implements Listener {
         // if player's inventory is not full else tell him
         if (player.getInventory().firstEmpty() != -1) {
             // give the item to the player and remove it from the chest
-            if (menu.removeItem(clickedItem)) {
+            if (menu.removeInventoryItem(clickedItem)) {
                 player.getInventory().addItem(clickedItem);
                 inventory.setItem(clickedSlot, new ItemStack(Material.AIR));
                 player.updateInventory();

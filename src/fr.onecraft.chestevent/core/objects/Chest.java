@@ -67,8 +67,4 @@ public class Chest {
     public Menu getMenu() {
         return new Menu(plugin, id, expire, items);
     }
-
-    public long getExpireDate() {
-        return expire;
-    }
 }

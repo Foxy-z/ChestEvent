@@ -75,10 +75,10 @@ public class Menu implements InventoryHolder {
         return id;
     }
 
-    public boolean removeItem(ItemStack clickedItem) {
-        Iterator iterator = items.iterator();
+    public boolean removeInventoryItem(ItemStack clickedItem) {
+        Iterator<ChestItem> iterator = items.iterator();
         while (iterator.hasNext()) {
-            ChestItem item = (ChestItem) iterator.next();
+            ChestItem item = iterator.next();
             if (item.equalsInventory(clickedItem)) {
                 iterator.remove();
                 return true;
@@ -127,7 +127,7 @@ public class Menu implements InventoryHolder {
         ItemStack item = new ItemStack(Material.DOUBLE_PLANT);
         ItemMeta meta = item.getItemMeta();
         meta.setDisplayName("§6§l <<< Page " + page + " >>> ");
-        meta.setLore(Arrays.asList(" ", "§7Expire le: §6" + new SimpleDateFormat("dd/MM/yyyy").format(new Date(expire))));
+        meta.setLore(Arrays.asList(" ", "§7Expire le: §6" + new SimpleDateFormat("dd/MM/yyyy à HH:mm").format(new Date(expire))));
         item.setItemMeta(meta);
         item.setAmount(page);
         return item;
