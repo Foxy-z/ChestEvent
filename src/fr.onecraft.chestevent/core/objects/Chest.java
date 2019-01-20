@@ -11,16 +11,25 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public class Chest {
+    private static final Map<Integer, Chest> CHESTS = new HashMap<>();
 
     public static final String CHEST_NAME = "§6§lCoffre d'événement";
     public static final String DIRECTORY = "chests";
 
     public static Chest fromId(ChestEvent plugin, int id) {
+        if (CHESTS.containsKey(id)) {
+            return CHESTS.get(id);
+        }
+
         Configuration conf = Configs.get(plugin, DIRECTORY, id);
-        return conf != null ? new Chest(plugin, conf, id) : null;
+        Chest chest = conf != null ? new Chest(plugin, conf, id) : null;
+        CHESTS.put(id, chest);
+        return chest;
     }
 
     private final ChestEvent plugin;

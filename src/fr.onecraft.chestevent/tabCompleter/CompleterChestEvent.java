@@ -22,6 +22,7 @@ public class CompleterChestEvent implements TabCompleter {
             if (sender.hasPermission("chestevent.viewcontent")) choices.add("viewcontent");
             if (sender.hasPermission("chestevent.list")) choices.add("list");
             if (sender.hasPermission("chestevent.reload")) choices.add("reload");
+            if (sender.hasPermission("chestevent.getlink")) choices.add("getlink");
             return choices.stream()
                     .filter(choice -> choice.startsWith(token))
                     .collect(Collectors.toList());
