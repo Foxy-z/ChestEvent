@@ -63,12 +63,25 @@ public class CmdChestEvent implements CommandExecutor {
     }
 
     private void showHelp(CommandSender sender) {
-        sender.sendMessage(ChestEvent.PREFIX + "Gère les récompenses d'événements"
-                + (sender.hasPermission("chestevent.info") ? "\n§b/chestevent info <event>§7 informations sur un événement" : "")
-                + (sender.hasPermission("chestevent.viewcontent") ? "\n§b/chestevent viewcontent <event>§7 contenu d'un événement" : "")
-                + (sender.hasPermission("chestevent.list") ? "\n§b/chestevent list §7liste des événements" : "")
-                + (sender.hasPermission("chestevent.give") ? "\n§b/chestevent give <event> [pseudo]§7 give un coffre d'événement" : "")
-                + (sender.hasPermission("chestevent.reload") ? "\n§b/chestevent reload §7met à jour les événements" : ""));
+        List<String> cmds = new ArrayList<>();
+
+        if (sender.hasPermission("chestevent.info"))
+            cmds.add("§b/chestevent info <event>§7 informations sur un événement");
+        if (sender.hasPermission("chestevent.viewcontent"))
+            cmds.add("§b/chestevent viewcontent <event>§7 contenu d'un événement");
+        if (sender.hasPermission("chestevent.list"))
+            cmds.add("§b/chestevent list §7liste des événements");
+        if (sender.hasPermission("chestevent.give"))
+            cmds.add("§b/chestevent give <event> [pseudo]§7 give un coffre d'événement");
+        if (sender.hasPermission("chestevent.reload"))
+            cmds.add("§b/chestevent reload §7met à jour les événements");
+
+        if (cmds.isEmpty()) {
+            sender.sendMessage(ChestEvent.ERROR + "Tu n'as pas la permission.");
+        } else {
+            sender.sendMessage(ChestEvent.PREFIX + "Gère les récompenses d'événements");
+            cmds.forEach(sender::sendMessage);
+        }
     }
 
     private void showPage(Player player, String arg) {
