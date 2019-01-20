@@ -100,6 +100,7 @@ public class EventListener implements Listener {
 
         Menu menu = (Menu) inventory.getHolder();
         ItemStack clickedItem = event.getCurrentItem();
+
         // cancel if clicked item is null or is air
         if (clickedItem == null || clickedItem.getType() == Material.AIR) return;
 

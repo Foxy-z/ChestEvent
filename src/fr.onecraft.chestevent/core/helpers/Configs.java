@@ -1,5 +1,6 @@
 package fr.onecraft.chestevent.core.helpers;
 
+import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
 import org.bukkit.configuration.Configuration;
@@ -7,6 +8,7 @@ import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.configuration.InvalidConfigurationException;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.enchantments.Enchantment;
+import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.plugin.java.JavaPlugin;
@@ -125,6 +127,7 @@ public class Configs {
     }
 
     public static List<ItemStack> loadItems(ConfigurationSection conf) {
+        Inventory inventory = Bukkit.createInventory(null, 9);
         return conf.getConfigurationSection("items").getKeys(false).stream().map((item) -> {
             // get section
             ConfigurationSection slot = conf.getConfigurationSection("items." + item);
@@ -169,7 +172,10 @@ public class Configs {
             // update meta
             itemStack.setItemMeta(meta);
 
-            return itemStack;
+            // convert nbt tags
+            inventory.setItem(0, itemStack);
+
+            return inventory.getItem(0);
         }).collect(Collectors.toList());
     }
 }
