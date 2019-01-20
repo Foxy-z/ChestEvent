@@ -59,7 +59,7 @@ public class Model {
     private final String eventName;
     private final String description;
 
-    private final List<ItemStack> itemList;
+    private final List<ChestItem> itemList;
 
     private Model(ChestEvent plugin, ConfigurationSection config, String eventName) {
         this.plugin = plugin;
@@ -80,7 +80,7 @@ public class Model {
         return description;
     }
 
-    public List<ItemStack> getContent() {
+    public List<ChestItem> getContent() {
         return itemList;
     }
 

@@ -2,6 +2,7 @@ package fr.onecraft.chestevent.commands;
 
 import fr.onecraft.chestevent.ChestEvent;
 import fr.onecraft.chestevent.core.objects.Chest;
+import fr.onecraft.chestevent.core.objects.ChestItem;
 import fr.onecraft.chestevent.core.objects.Model;
 import fr.onecraft.chestevent.core.objects.Pager;
 import net.md_5.bungee.api.ChatColor;
@@ -230,10 +231,11 @@ public class CmdChestEvent implements CommandExecutor {
 
     private void viewContent(CommandSender sender, String event) {
         Model model = Model.get(event);
-        List<ItemStack> items = model.getContent();
+        List<ChestItem> items = model.getContent();
         List<TextComponent> messages = new ArrayList<>();
 
-        for (ItemStack itemStack : items) {
+        for (ChestItem chestItem : items) {
+            ItemStack itemStack = chestItem.getOriginal();
             ItemMeta meta = itemStack.getItemMeta();
             String displayName = itemStack.getItemMeta().getDisplayName();
 

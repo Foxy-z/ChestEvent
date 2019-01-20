@@ -26,7 +26,7 @@ public class Chest {
     private final ChestEvent plugin;
     private final int id;
     private final String name;
-    private final List<ItemStack> items;
+    private final List<ChestItem> items;
     private final long expire;
 
     private Chest(ChestEvent plugin, ConfigurationSection config, int id) {
@@ -49,7 +49,7 @@ public class Chest {
         return "chestevent.open." + name;
     }
 
-    public List<ItemStack> getItems() {
+    public List<ChestItem> getItems() {
         return items;
     }
 

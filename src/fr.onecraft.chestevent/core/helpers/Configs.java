@@ -1,6 +1,6 @@
 package fr.onecraft.chestevent.core.helpers;
 
-import org.bukkit.Bukkit;
+import fr.onecraft.chestevent.core.objects.ChestItem;
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
 import org.bukkit.configuration.Configuration;
@@ -8,7 +8,6 @@ import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.configuration.InvalidConfigurationException;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.enchantments.Enchantment;
-import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.plugin.java.JavaPlugin;
@@ -74,23 +73,24 @@ public class Configs {
         return save(plugin, config, folder, String.valueOf(configName));
     }
 
-    public static void dumpItems(Configuration conf, List<ItemStack> items) {
+    public static void dumpItems(Configuration conf, List<ChestItem> items) {
         conf.set("items", null);
 
         int slot = 1;
-        for (ItemStack itemStack : items) {
+        for (ChestItem chestItem : items) {
             ConfigurationSection section = conf.createSection("items.slot" + slot);
-            ItemMeta meta = itemStack.getItemMeta();
+            ItemStack item = chestItem.getOriginal();
+            ItemMeta meta = item.getItemMeta();
 
             // save item type and metadata
-            String itemType = itemStack.getType().toString();
+            String itemType = item.getType().toString();
             // noinspection deprecation
-            short metadata = itemStack.getData().getData();
+            short metadata = item.getData().getData();
             section.set("type", itemType + ":" + metadata);
 
             // save item amount if bigger than 1
-            if (itemStack.getAmount() > 1) {
-                section.set("amount", itemStack.getAmount());
+            if (item.getAmount() > 1) {
+                section.set("amount", item.getAmount());
             }
 
             // save item name if any
@@ -126,8 +126,7 @@ public class Configs {
         }
     }
 
-    public static List<ItemStack> loadItems(ConfigurationSection conf) {
-        Inventory inventory = Bukkit.createInventory(null, 9);
+    public static List<ChestItem> loadItems(ConfigurationSection conf) {
         return conf.getConfigurationSection("items").getKeys(false).stream().map((item) -> {
             // get section
             ConfigurationSection slot = conf.getConfigurationSection("items." + item);
@@ -172,10 +171,7 @@ public class Configs {
             // update meta
             itemStack.setItemMeta(meta);
 
-            // convert nbt tags
-            inventory.setItem(0, itemStack);
-
-            return inventory.getItem(0);
+            return new ChestItem(itemStack);
         }).collect(Collectors.toList());
     }
 }

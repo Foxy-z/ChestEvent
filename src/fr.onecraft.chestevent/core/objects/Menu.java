@@ -14,6 +14,7 @@ import java.io.File;
 import java.text.SimpleDateFormat;
 import java.util.Arrays;
 import java.util.Date;
+import java.util.Iterator;
 import java.util.List;
 
 public class Menu implements InventoryHolder {
@@ -25,12 +26,12 @@ public class Menu implements InventoryHolder {
 
     private final ChestEvent plugin;
     private final int id;
-    private final List<ItemStack> items;
+    private final List<ChestItem> items;
     private final long expire;
 
     private int currentPage;
 
-    Menu(ChestEvent plugin, int id, long expire, List<ItemStack> items) {
+    Menu(ChestEvent plugin, int id, long expire, List<ChestItem> items) {
         this.plugin = plugin;
         this.id = id;
         this.currentPage = 1;
@@ -44,7 +45,7 @@ public class Menu implements InventoryHolder {
         int start = (currentPage - 1) * ITEMS_PER_PAGE;
         int end = Math.min(currentPage * ITEMS_PER_PAGE, items.size());
         for (int i = start; i < end; i++) {
-            inv.setItem(i - start, items.get(i));
+            inv.setItem(i - start, items.get(i).getOriginal());
         }
 
         inv.setItem(Menu.ITEMS_PER_PAGE, getPreviousButton());
@@ -66,12 +67,24 @@ public class Menu implements InventoryHolder {
         return (int) Math.ceil((double) items.size() / Menu.ITEMS_PER_PAGE);
     }
 
-    public List<ItemStack> getItems() {
+    public List<ChestItem> getItems() {
         return items;
     }
 
     public int getChestId() {
         return id;
+    }
+
+    public boolean removeItem(ItemStack clickedItem) {
+        Iterator iterator = items.iterator();
+        while (iterator.hasNext()) {
+            ChestItem item = (ChestItem) iterator.next();
+            if (item.equalsInventory(clickedItem)) {
+                iterator.remove();
+                return true;
+            }
+        }
+        return false;
     }
 
     @Override
