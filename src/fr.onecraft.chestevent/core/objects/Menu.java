@@ -14,7 +14,6 @@ import java.io.File;
 import java.text.SimpleDateFormat;
 import java.util.Arrays;
 import java.util.Date;
-import java.util.Iterator;
 import java.util.List;
 
 public class Menu implements InventoryHolder {
@@ -75,16 +74,41 @@ public class Menu implements InventoryHolder {
         return id;
     }
 
-    public boolean removeInventoryItem(ItemStack clickedItem) {
-        Iterator<ChestItem> iterator = items.iterator();
-        while (iterator.hasNext()) {
-            ChestItem item = iterator.next();
+    public boolean removeInventoryItem(ItemStack clickedItem, boolean stack) {
+
+        for (int i = 0; i < items.size(); i++) {
+            ChestItem item = items.get(i);
             if (item.equalsInventory(clickedItem)) {
-                iterator.remove();
+                if (stack || item.getOriginal().getAmount() == 1) {
+                    items.remove(i);
+                } else {
+                    ChestItem toReplace = items.get(i);
+                    toReplace.getOriginal().setAmount(toReplace.getOriginal().getAmount() - 1);
+                    items.set(i, toReplace);
+                }
                 return true;
             }
         }
         return false;
+
+
+
+        /*
+        Iterator<ChestItem> iterator = items.iterator();
+        while (iterator.hasNext()) {
+            ChestItem item = iterator.next();
+            Bukkit.broadcastMessage(item.getOriginal().getData() + " " + clickedItem.getData());
+            if (item.equalsInventory(clickedItem)) {
+                if (stack || item.getOriginal().getAmount() == 1) {
+                    iterator.remove();
+                } else {
+                    item.getOriginal().setAmount(item.getOriginal().getAmount() - 1);
+                }
+                return true;
+            }
+        }
+        return false;
+        */
     }
 
     @Override

@@ -131,9 +131,18 @@ public class EventListener implements Listener {
         // if player's inventory is not full else tell him
         if (player.getInventory().firstEmpty() != -1) {
             // give the item to the player and remove it from the chest
-            if (menu.removeInventoryItem(clickedItem)) {
-                player.getInventory().addItem(clickedItem);
-                inventory.setItem(clickedSlot, new ItemStack(Material.AIR));
+            boolean stack = event.isShiftClick();
+            if (menu.removeInventoryItem(clickedItem, stack)) {
+                if (stack || clickedItem.getAmount() == 1) {
+                    inventory.setItem(clickedSlot, new ItemStack(Material.AIR));
+                    player.getInventory().addItem(clickedItem);
+                } else {
+                    clickedItem.setAmount(clickedItem.getAmount() - 1);
+                    ItemStack toGive = clickedItem.clone();
+                    toGive.setAmount(1);
+                    player.getInventory().addItem(toGive);
+                }
+
                 player.updateInventory();
                 plugin.logToFile("ITEM", player.getName() + " took " + clickedItem.getAmount() + "x " + clickedItem.getType().toString() + ":" + clickedItem.getData().getData() + " (ChestID: " + menu.getChestId() + ", remaining items: " + menu.getItems().size() + ")");
             } else {
