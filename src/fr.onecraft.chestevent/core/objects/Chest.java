@@ -22,14 +22,10 @@ public class Chest {
     public static final String DIRECTORY = "chests";
 
     public static Chest fromId(ChestEvent plugin, int id) {
-        if (CHESTS.containsKey(id)) {
-            return CHESTS.get(id);
-        }
-
-        Configuration conf = Configs.get(plugin, DIRECTORY, id);
-        Chest chest = conf != null ? new Chest(plugin, conf, id) : null;
-        CHESTS.put(id, chest);
-        return chest;
+        return CHESTS.computeIfAbsent(id, (i) -> {
+            Configuration conf = Configs.get(plugin, DIRECTORY, i);
+            return new Chest(plugin, conf, i);
+        });
     }
 
     private final ChestEvent plugin;
