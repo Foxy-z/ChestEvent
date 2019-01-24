@@ -132,7 +132,7 @@ public class EventListener implements Listener {
         if (player.getInventory().firstEmpty() != -1) {
             // give the item to the player and remove it from the chest
             boolean stack = event.isShiftClick();
-            if (menu.removeInventoryItem(clickedItem, stack)) {
+            if (menu.removeOriginalItem(clickedItem, stack)) {
                 if (stack || clickedItem.getAmount() == 1) {
                     inventory.setItem(clickedSlot, new ItemStack(Material.AIR));
                     player.getInventory().addItem(clickedItem);

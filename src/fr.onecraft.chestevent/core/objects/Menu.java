@@ -74,37 +74,21 @@ public class Menu implements InventoryHolder {
         return id;
     }
 
-    public boolean removeInventoryItem(ItemStack clickedItem, boolean stack) {
+    public boolean removeOriginalItem(ItemStack ofInventoryItem, boolean stack) {
         for (int i = 0; i < items.size(); i++) {
             ChestItem item = items.get(i);
-            if (item.equalsInventory(clickedItem)) {
+            if (item.equalsInventory(ofInventoryItem)) {
                 if (stack || item.getOriginal().getAmount() == 1) {
                     items.remove(i);
                 } else {
-                    ItemStack itemStack = items.get(i).getOriginal();
-                    itemStack.setAmount(itemStack.getAmount() - 1);
+                    ItemStack original = items.get(i).getOriginal();
+                    original.setAmount(original.getAmount() - 1);
+                    item.update();
                 }
                 return true;
             }
         }
         return false;
-
-        /*
-        Iterator<ChestItem> iterator = items.iterator();
-        while (iterator.hasNext()) {
-            ChestItem item = iterator.next();
-            Bukkit.broadcastMessage(item.getOriginal().getData() + " " + clickedItem.getData());
-            if (item.equalsInventory(clickedItem)) {
-                if (stack || item.getOriginal().getAmount() == 1) {
-                    iterator.remove();
-                } else {
-                    item.getOriginal().setAmount(item.getOriginal().getAmount() - 1);
-                }
-                return true;
-            }
-        }
-        return false;
-        */
     }
 
     @Override

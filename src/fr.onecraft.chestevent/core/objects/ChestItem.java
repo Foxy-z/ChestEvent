@@ -7,17 +7,20 @@ import org.bukkit.inventory.ItemStack;
 public class ChestItem {
     private static Inventory inv = Bukkit.createInventory(null, 9);
     private final ItemStack originalItem;
-    private final ItemStack inventoryItem;
+    private ItemStack inventoryItem;
 
     public ChestItem(ItemStack itemStack) {
         this.originalItem = itemStack;
-
-        inv.setItem(0, originalItem);
-        this.inventoryItem = inv.getItem(0);
+        update();
     }
 
     public boolean equalsInventory(ItemStack other) {
         return inventoryItem.equals(other);
+    }
+
+    public void update() {
+        inv.setItem(0, originalItem);
+        inventoryItem = inv.getItem(0);
     }
 
     public ItemStack getOriginal() {
