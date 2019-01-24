@@ -83,7 +83,7 @@ public class Menu implements InventoryHolder {
                 } else {
                     ItemStack original = items.get(i).getOriginal();
                     original.setAmount(original.getAmount() - 1);
-                    item.update();
+                    item.updateAmount();
                 }
                 return true;
             }
