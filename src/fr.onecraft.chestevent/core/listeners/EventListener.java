@@ -66,7 +66,7 @@ public class EventListener implements Listener {
 
         Chest chest = Chest.fromId(plugin, id);
         // delete the chest if it is null
-        if (chest == null) {
+        if (chest == null || chest.getItems().isEmpty()) {
             player.getInventory().setItemInHand(new ItemStack(Material.AIR));
             player.sendMessage(ChestEvent.ERROR + "Ce coffre n'existe plus.");
             event.setCancelled(true);

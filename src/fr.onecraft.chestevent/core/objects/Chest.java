@@ -24,7 +24,7 @@ public class Chest {
     public static Chest fromId(ChestEvent plugin, int id) {
         return CHESTS.computeIfAbsent(id, (i) -> {
             Configuration conf = Configs.get(plugin, DIRECTORY, i);
-            return new Chest(plugin, conf, i);
+            return conf == null ? null : new Chest(plugin, conf, i);
         });
     }
 

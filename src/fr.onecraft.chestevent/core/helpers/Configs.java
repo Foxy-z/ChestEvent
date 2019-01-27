@@ -29,6 +29,7 @@ public class Configs {
                     plugin.getDataFolder() + (folder.isEmpty() ? "" : "/") + folder,
                     filename + (filename.endsWith(".yml") ? "" : ".yml")
             );
+            if (!file.exists()) return null;
             FileInputStream fileinputstream = new FileInputStream(file);
             configuration.load(new InputStreamReader(fileinputstream, Charset.forName("UTF-8")));
             return configuration;
