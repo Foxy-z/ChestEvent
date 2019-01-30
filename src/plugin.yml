@@ -1,6 +1,6 @@
 name: ChestEvent
 author: TheFoxy41
-version: 1.3.3
+version: 1.4.0
 main: fr.onecraft.chestevent.ChestEvent
 commands:
  chestevent:
