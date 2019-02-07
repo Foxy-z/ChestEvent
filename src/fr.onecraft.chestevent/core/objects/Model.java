@@ -49,7 +49,12 @@ public class Model {
 
     private static Model fromName(ChestEvent plugin, String name) {
         Configuration conf = Configs.get(plugin, DIRECTORY, name);
-        return conf != null ? new Model(plugin, conf, name) : null;
+        try {
+            return conf != null ? new Model(plugin, conf, name) : null;
+        } catch (Exception e) {
+            e.printStackTrace();
+            return null;
+        }
     }
 
     // ---------------------
