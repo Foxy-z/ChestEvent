@@ -5,7 +5,6 @@ import fr.onecraft.chestevent.core.helpers.Configs;
 import org.bukkit.Bukkit;
 import org.bukkit.configuration.Configuration;
 import org.bukkit.configuration.ConfigurationSection;
-import org.bukkit.inventory.ItemStack;
 
 import java.io.File;
 import java.util.*;

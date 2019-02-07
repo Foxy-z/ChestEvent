@@ -128,51 +128,56 @@ public class Configs {
     }
 
     public static List<ChestItem> loadItems(ConfigurationSection conf) {
-        return conf.getConfigurationSection("items").getKeys(false).stream().map((item) -> {
-            // get section
-            ConfigurationSection slot = conf.getConfigurationSection("items." + item);
+        try {
+            return conf.getConfigurationSection("items").getKeys(false).stream().map((item) -> {
+                // get section
+                ConfigurationSection slot = conf.getConfigurationSection("items." + item);
 
-            String[] itemData = slot.getString("type").split(":");
+                String[] itemData = slot.getString("type").split(":");
 
-            // get item type
-            Material type = Material.valueOf(itemData[0]);
+                // get item type
+                Material type = Material.valueOf(itemData[0]);
 
-            // get metadata
-            short metadata = itemData.length > 1 ? Short.parseShort(itemData[1]) : 0;
+                // get metadata
+                short metadata = itemData.length > 1 ? Short.parseShort(itemData[1]) : 0;
 
-            // get item amount (1 or more)
-            int amount = Math.max(1, slot.getInt("amount"));
+                // get item amount (1 or more)
+                int amount = Math.max(1, slot.getInt("amount"));
 
-            // create item stack
-            ItemStack itemStack = new ItemStack(type, amount, metadata);
-            ItemMeta meta = itemStack.getItemMeta();
+                // create item stack
+                ItemStack itemStack = new ItemStack(type, amount, metadata);
+                ItemMeta meta = itemStack.getItemMeta();
 
-            // set name
-            String name = slot.getString("name");
-            if (name != null) {
-                meta.setDisplayName("§f" + ChatColor.translateAlternateColorCodes('&', name));
-            }
+                // set name
+                String name = slot.getString("name");
+                if (name != null) {
+                    meta.setDisplayName("§f" + ChatColor.translateAlternateColorCodes('&', name));
+                }
 
-            // add lore
-            meta.setLore(
-                    slot.getStringList("lore")
-                            .stream()
-                            .map(lore -> "§7" + ChatColor.translateAlternateColorCodes('&', lore))
-                            .collect(Collectors.toList())
-            );
+                // add lore
+                meta.setLore(
+                        slot.getStringList("lore")
+                                .stream()
+                                .map(lore -> "§7" + ChatColor.translateAlternateColorCodes('&', lore))
+                                .collect(Collectors.toList())
+                );
 
-            // add enchants
-            slot.getStringList("enchant")
-                    .forEach(enchant -> meta.addEnchant(
-                            Enchantment.getByName(enchant.split(":")[0]),
-                            Integer.parseInt(enchant.split(":")[1]),
-                            true
-                    ));
+                // add enchants
+                slot.getStringList("enchant")
+                        .forEach(enchant -> meta.addEnchant(
+                                Enchantment.getByName(enchant.split(":")[0]),
+                                Integer.parseInt(enchant.split(":")[1]),
+                                true
+                        ));
 
-            // update meta
-            itemStack.setItemMeta(meta);
+                // update meta
+                itemStack.setItemMeta(meta);
 
-            return new ChestItem(itemStack);
-        }).collect(Collectors.toList());
+                return new ChestItem(itemStack);
+            }).collect(Collectors.toList());
+        } catch (NullPointerException e) {
+            e.printStackTrace();
+            return null;
+        }
     }
 }
