@@ -84,20 +84,17 @@ public class ChestEvent extends JavaPlugin {
 
     public void logToFile(String action, String message) {
         try {
-            Date systemDate = Calendar.getInstance().getTime();
-            String dateStr = new SimpleDateFormat("dd-MM-yyyy").format(systemDate);
-            File file = new File(this.getDataFolder() + "/logs/", dateStr + ".txt");
-            if (!file.exists()) {
-                file.getParentFile().mkdirs();
-                file.createNewFile();
-            }
+            Date now = Calendar.getInstance().getTime();
+            String today = new SimpleDateFormat("yyyy-MM-dd").format(now);
+            String time = new SimpleDateFormat("HH:mm:ss").format(now);
 
-            FileWriter writer = new FileWriter(file, true);
-            PrintWriter printer = new PrintWriter(writer);
-            String timeStr = new SimpleDateFormat("HH:mm:ss").format(systemDate);
-            printer.println("[" + timeStr + "][" + action + "] " + message);
-            printer.flush();
-            printer.close();
+            File file = new File(this.getDataFolder() + "/logs/", today + ".log");
+            if (!file.exists()) file.getParentFile().mkdirs();
+
+            PrintWriter writer = new PrintWriter(new FileWriter(file, true));
+            writer.println("[" + time + "][" + action + "] " + message);
+            writer.flush();
+            writer.close();
         } catch (IOException e) {
             e.printStackTrace();
         }
